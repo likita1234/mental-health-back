@@ -1,5 +1,5 @@
 const AppError = require('../utils/app-errors');
-const { errors } = require('../utils/errors');
+const { ErrorStates } = require('../utils/errors');
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -23,7 +23,7 @@ const sendErrorProd = (err, res) => {
     // 1) Log error
     console.error('Error ***', err);
     res.status(500).json({
-      status: errors.ERROR,
+      status: ErrorStates.ERROR,
       message: 'Something went wrong in the server',
     });
   }
@@ -40,6 +40,12 @@ const handleDuplicateFieldsDB = (error) => {
   return new AppError(message, 400);
 };
 
+const handleValidationErrorDB = (error) => {
+  const errors = Object.values(error.errors).map((el) => el.message);
+  const message = `Invalid input data. ${errors.join(' ')}`;
+  return AppError(message, 400);
+};
+
 // global error handling
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
@@ -54,6 +60,8 @@ module.exports = (err, req, res, next) => {
     // Checks for invalid requests
     if (error.name === 'CastError') error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+    if (error.name === 'ValidationError')
+      error = handleValidationErrorDB(error);
 
     sendErrorProd(error, res);
   }

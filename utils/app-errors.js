@@ -1,4 +1,4 @@
-const { errors } = require('./errors');
+const { ErrorStates } = require('./errors');
 
 class AppError extends Error {
   constructor(message, statusCode) {
@@ -6,8 +6,8 @@ class AppError extends Error {
 
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('4')
-      ? errors.FAILED
-      : errors.ERROR;
+      ? ErrorStates.FAILED
+      : ErrorStates.ERROR;
 
     this.isOperational = true;
 

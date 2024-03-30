@@ -1,4 +1,4 @@
-const errors = Object.freeze({
+const ErrorStates = Object.freeze({
   ERROR: 'Error',
   NOT_FOUND: 'Not Found',
   FAILED: 'Failed',
@@ -8,4 +8,4 @@ const errors = Object.freeze({
   UNAUTHORIZED: 'Unauthorized',
 });
 
-module.exports = { errors };
+module.exports = { ErrorStates };
