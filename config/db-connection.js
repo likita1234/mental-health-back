@@ -1,12 +1,18 @@
 const mongoose = require('mongoose');
 
 // encode password
-const password = encodeURIComponent(process.env.PASSWORD);
+const username = encodeURIComponent(process.env.DB_USERNAME);
+const password = encodeURIComponent(process.env.DB_PASSWORD);
+const database = process.env.DATABASE;
 
-// Remote Connection url
-// const connectionUrl = `mongodb+srv://${process.env.USERNAME}:${password}@${process.env.CLUSTER}.kow5ofo.mongodb.net/${process.env.REMOTE_DATABASE}?retryWrites=true&w=majority`;
-// Local Connection
-const connectionUrl = `${process.env.LOCAL_URL}/${process.env.LOCAL_DATABASE}`;
+// =========> Connection URL setup
+let connectionUrl;
+if (process.env.NODE_ENV === 'production') {
+  connectionUrl = `mongodb+srv://${username}:${password}@cluster0.kow5ofo.mongodb.net/${database}?retryWrites=true&w=majority`;
+} else {
+  connectionUrl = `${process.env.LOCAL_URL}/${process.env.LOCAL_DATABASE}`;
+}
+
 // connection
 mongoose.connect(connectionUrl, {});
 
