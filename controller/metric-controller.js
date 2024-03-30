@@ -206,10 +206,10 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
     sectionId
   );
   // Extract all the questionIds in mongoose.Types.ObjectId format
-  const allQuestionIds = sectionDetails?.questions.map((question) => {
-    return mongoose.Types.ObjectId(question._id);
-    // return question._id;
-  });
+  // const allQuestionIds = sectionDetails?.questions.map((question) => {
+  //   return mongoose.Types.ObjectId(question._id);
+  //   // return question._id;
+  // });
   // Your aggregation pipeline
   const responseData = await Answer.aggregate([
     // Match the condition ======> formId
