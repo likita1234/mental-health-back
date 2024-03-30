@@ -32,6 +32,10 @@ const assessmentFormSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  submissions: {
+    type: Number,
+    default: 0,
+  },
   createdDate: {
     type: Date,
     default: Date.now,
@@ -58,6 +62,12 @@ assessmentFormSchema.methods.softDelete = async function () {
 assessmentFormSchema.methods.togglePoll = async function () {
   //  Otherwise continue
   this.pollActive = !this.pollActive;
+  await this.save();
+};
+
+// ==========>  Increment submission count everytime a form have been submitted
+assessmentFormSchema.methods.incrementSubmissionCount = async function () {
+  this.submissions += 1;
   await this.save();
 };
 
