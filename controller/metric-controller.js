@@ -529,11 +529,17 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
   // Step 1: Inititate a questionOptions array and extract options for each questionId and push it in
   const allQuestionOptions = await Promise.all(
     sectionQuestionIds.map(async (currQuestionId) => {
-      const { questionOptions } =
+      const { questionOptions, questionDetails } =
         await QuestionController.fetchQuestionOptionsByQuestionId(
           currQuestionId
         );
-      return { questionId: currQuestionId, questionOptions };
+      const questionTitle = questionDetails?.title?.english;
+
+      return {
+        questionId: currQuestionId,
+        questionTitle,
+        questionOptions,
+      };
     })
   );
 
@@ -592,7 +598,19 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
     }),
   }));
 
-  return mappedResult;
+  // Replace questionId with questionTitle
+  const finalMappedResult = mappedResult.map(({ questionId, answers }) => {
+    console.log(questionId);
+    const { questionTitle } = allQuestionOptions.find(
+      (question) => question.questionId == questionId
+    );
+    return {
+      questionTitle,
+      answers,
+    };
+  });
+
+  return finalMappedResult;
 };
 
 // Handler sorting orders by options
