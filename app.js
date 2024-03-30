@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const authRouter = require('./routes/auth-routes');
 const userRouter = require('./routes/user-routes');
@@ -15,6 +16,14 @@ const AppError = require('./utils/app-errors');
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// Middleware for Rate Limiting
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests at the moment. Please try again in an hour',
+});
+app.use('/api', limiter);
 
 app.use(express.json());
 // This will serve your public folder where you can put your static files and use throughout the application
