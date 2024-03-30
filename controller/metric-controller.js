@@ -297,7 +297,20 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
         },
       },
     },
-    { $unset: 'answers' }, // Remove the answers key
+    // Remove the answers key
+    { $unset: 'answers' },
+    {
+      $group: {
+        _id: '$WHOIndexTotalSum',
+        count: { $sum: 1 },
+      },
+    },
+    // Sort by _id in ascending order
+    { $sort: { _id: 1 } },
+    // Project _id as label
+    { $project: { label: '$_id', count: 1 } },
+    // Remove the _id key
+    { $unset: '_id' },
   ]);
 
   return responseData;
