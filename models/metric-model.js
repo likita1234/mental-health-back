@@ -19,13 +19,16 @@ const metricSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Select either of the options'],
     enum: [
+      // =======> For individual questions
       'table',
       'bar',
       'pie',
       'line',
       'combo',
       'ratings',
-      'question-ratings-summation', //only supports type->section and question with ratings type
+      //=======> For sections
+      'questions-table',
+      'question-ratings-summation', //only supports (type->section with question of ratings type)
     ],
     default: 'table',
   },
