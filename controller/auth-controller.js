@@ -1,10 +1,10 @@
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../models/user-model');
 const catchAsync = require('../utils/catch-async');
 const AppError = require('../utils/app-errors');
 const SendEmail = require('../utils/email');
-const sendEmail = require('../utils/email');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -127,7 +127,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const message = `Forgot your password ? Please follow the link below to reset your password:\n ${resetURL}.\n If you didn't reset your password, please ignore this email!`;
 
   try {
-    await sendEmail({
+    await SendEmail({
       email: user.email,
       subject: 'Your password reset token (valid for 10 mins)',
       message,
@@ -148,4 +148,33 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.resetPassword = (req, res, next) => {};
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // 1) Get user based on the token
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.passwordResetToken)
+    .digest('hex');
+
+  // Find the user with the matching hasedToken as well as check whether the passwordResetExpires has expired or not
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  if (!user) {
+    return next(new AppError('Invalid Token', 400));
+  }
+  // 2) If the token has not expired and there is uer, set the new password
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+  // 3) Update changedPasswordAt property for the user
+  // 4) Log the user in, Send the JWT
+
+  const token = signToken(user._id);
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});

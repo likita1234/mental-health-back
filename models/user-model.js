@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema({
   },
   confirmPassword: {
     type: String,
+    required: ['true', 'Confirm Password is required!'],
     validate: {
       validator: function (el) {
         return el === this.password;
@@ -55,6 +56,27 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+});
+
+//  Middlewares to generate fullname, encrypt password
+userSchema.pre('save', async function (next) {
+  this.fullname = this.name + ' ' + this.surname;
+  //   Only run this function if password wasn't actually modified
+  if (!this.isModified('password')) return next();
+
+  //   Hash the password with the cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+  // dont save confirmPassword since its only needed for verification during signup not for save
+  this.confirmPassword = undefined;
+});
+
+userSchema.pre('save', function (next) {
+  // If there is no password modication or this is a new document
+  if (!this.isModified('password') || this.isNew) return next();
+  // Else set the date such that the password has been changed
+  // password changes deducted with 1s such that the token created time is considered
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
 });
 
 userSchema.methods.correctPassword = async function (
@@ -75,18 +97,6 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   }
   return false;
 };
-
-//  Middlewares to generate fullname, encrypt password
-userSchema.pre('save', async function (next) {
-  this.fullname = this.name + ' ' + this.surname;
-  //   Only run this function if password wasn't actually modified
-  if (!this.isModified('password')) return next();
-
-  //   Hash the password with the cost of 12
-  this.password = await bcrypt.hash(this.password, 12);
-  // dont save confirmPassword since its only needed for verification during signup not for save
-  this.confirmPassword = undefined;
-});
 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
