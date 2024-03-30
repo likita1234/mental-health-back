@@ -176,12 +176,20 @@ exports.fetchQuestionDetailsById = async (questionId) => {
     })
       .select('-__v')
       .populate({
-        path: 'options',
-        select: '-__v',
-      })
-      .populate({
         path: 'author',
         select: 'name surname email role',
+      })
+      .then(async (question) => {
+        if (question.type === 'radio' || question.type === 'checkbox') {
+          return await question
+            .populate({
+              path: 'options',
+              select: '-__v',
+            })
+            .execPopulate();
+        } else {
+          return question;
+        }
       });
   } catch (error) {
     throw new Error('Error fetching question details');
