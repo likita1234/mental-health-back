@@ -48,50 +48,64 @@ exports.addMetric = catchAsync(async (req, res, next) => {
 
 // Make data analysis on the basis of individual question representing a particular form
 // questionId, formId and chartType mandatory
-exports.getMetricData = catchAsync(async (req, res, next) => {
+// passing id as well so as to utilize this function from somewhere else
+exports.getMetricData = catchAsync(async (req, res, next, id) => {
   // Extract metricId from params
-  const { metricId } = req.params;
-  //   Fetch metric details first
-  const existingMetric = await Metric.findOne({
-    _id: metricId,
-    active: true,
-  });
+  const { metricId } = req.params || id;
 
-  //   Check if metric exists
+  // Fetch metric details first
+  const existingMetric = await fetchMetricDetails(metricId);
+
   if (!existingMetric) {
     return next(
       new AppError(`Metric details with ID ${metricId} not found`, 400)
     );
   }
 
-  // Otherwise, extract the required information from metric details
+  // Now, extract the required information from metric details
   const { title, description, formId, questionId, chartType } = existingMetric;
 
-  const questionDetails = await QuestionController.fetchQuestionDetailsById(
+  const existingQuestion = await QuestionController.fetchQuestionDetailsById(
     questionId
   );
-  // Construct response data
-  let responseData = null;
-  // If the question exists and proceed next steps
-  if (questionDetails) {
-    // Now check what chart type it is expecting
-    // ========> First case :- Normal where it supports bar, pie, starts, table (simple table)
-    // ========> Second case:- NLP included where its only for text area type or text types
-    // At the moment, only first case is handled
-    responseData = await getAggregatedData(formId, questionId, questionDetails);
-  } else {
+
+  if (!existingQuestion) {
     return next(new AppError(`Question with ID ${questionId} not found`, 400));
   }
+
+  // Now check what chart type it is expecting
+  // ========> First case :- Normal where it supports bar, pie, starts, table (simple table)
+  // ========> Second case:- NLP included where its only for text area type or text types
+  // At the moment, only first case is handled
+
+  const metricData = await getAggregatedData(
+    formId,
+    questionId,
+    existingQuestion
+  );
 
   res.status(200).json({
     status: 'success',
     data: {
       title,
       description,
-      metricData: responseData,
+      metricData,
     },
   });
 });
+
+// Helper to fetch metric details
+// ===========> Function to fetch question details
+const fetchMetricDetails = async (metricId) => {
+  try {
+    return await Metric.findOne({
+      _id: metricId,
+      active: true,
+    }).select('-__v');
+  } catch (error) {
+    throw new Error('Error fetching metric details');
+  }
+};
 
 // Helpers for aggregation of data
 const getAggregatedData = async (formId, questionId, questionDetails) => {
