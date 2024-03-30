@@ -163,10 +163,10 @@ exports.fetchSectionDetailsById = async (sectionId) => {
 };
 
 // ===========> Function to fetch all questionIds related to a section: @params:- sectionId
-exports.fetchQuestionIdsBySectionId = async (sectionId) => {
+exports.fetchQuestionIdsBySectionId = async (sectionId, removeTypes = []) => {
   const sectionDetails = await this.fetchSectionDetailsById(sectionId);
   // Now return all the question ids
-  return sectionDetails?.questions?.map(
-    (questionObj) => questionObj?.questionId._id
-  );
+  return sectionDetails?.questions
+    ?.filter((questionObj) => !removeTypes.includes(questionObj.questionId?.type))
+    ?.map((questionObj) => questionObj?.questionId._id);
 };
