@@ -104,17 +104,18 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
     // CASE 2.1: chartType ===========> question-ratings-summation
     if (chartType === 'question-ratings-summation') {
       const data = await this.getQuestionRatingsSummation(formId, sectionId);
-
       let labels = [];
       let counts = [];
+      let answers = [];
       for (let i = 0; i < data?.length; i++) {
         labels.push(data[i].label);
         counts.push(data[i].count);
+        answers = answers.concat(data[i].answers);
       }
-    
       metricData = {
         labels,
         data: [{ label: title, count: counts }],
+        answers,
       };
     }
   }
@@ -227,13 +228,11 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
   const sectionDetails = await SectionController.fetchSectionDetailsById(
     sectionId
   );
-  // console.log(sectionDetails);
   // Extract all the questionIds in mongoose.Types.ObjectId format
   const allQuestionIds = sectionDetails?.questions.map((question) => {
     return mongoose.Types.ObjectId(question._id);
     // return question._id;
   });
-  console.log(allQuestionIds);
   // Your aggregation pipeline
   const responseData = await Answer.aggregate([
     // Match the condition ======> formId
@@ -309,18 +308,18 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
         },
       },
     },
-    // Remove the answers key
-    { $unset: 'answers' },
+    // Calculation summation part,
     {
       $group: {
         _id: '$WHOIndexTotalSum',
         count: { $sum: 1 },
+        answers: { $first: '$answers' },
       },
     },
     // Sort by _id in ascending order
     { $sort: { _id: 1 } },
     // Project _id as label
-    { $project: { label: '$_id', count: 1 } },
+    { $project: { label: '$_id', count: 1, answers: 1 } },
     // Remove the _id key
     { $unset: '_id' },
   ]);
