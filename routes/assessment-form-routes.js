@@ -15,4 +15,8 @@ router
   .get(authController.validateToken, formController.getAssessmentFormDetails)
   .patch(authController.validateToken, formController.updateAssessmentForm)
   .delete(authController.validateToken, formController.deleteAssessmentForm);
+
+router
+  .route('/pollSwitch/:id')
+  .patch(authController.validateToken, formController.toggleAssessmentPoll);
 module.exports = router;

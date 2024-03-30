@@ -1,25 +1,14 @@
 const mongoose = require('mongoose');
 
+const LanguageSchema = require('./language-schema');
+
 const assessmentFormSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
+  title: {
+    type: LanguageSchema,
+    required: [true, 'Form title is mandatory'],
   },
   description: {
-    type: String,
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  createdDate: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedDate: {
-    type: Date,
-    default: Date.now,
+    type: LanguageSchema,
   },
   sections: [
     {
@@ -30,6 +19,27 @@ const assessmentFormSchema = new mongoose.Schema({
       },
     },
   ],
+  type: {
+    type: String,
+    enum: ['private', 'public'],
+    default: 'public',
+  },
+  active: {
+    type: Boolean,
+    default: true,
+  },
+  pollActive: {
+    type: Boolean,
+    default: true,
+  },
+  createdDate: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedDate: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 assessmentFormSchema.pre('save', function (next) {
@@ -41,6 +51,13 @@ assessmentFormSchema.pre('save', function (next) {
 assessmentFormSchema.methods.softDelete = async function () {
   //  Otherwise continue
   this.active = false;
+  await this.save();
+};
+
+// ==========>  Poll Toggle Methods
+assessmentFormSchema.methods.togglePoll = async function () {
+  //  Otherwise continue
+  this.pollActive = !this.pollActive;
   await this.save();
 };
 
