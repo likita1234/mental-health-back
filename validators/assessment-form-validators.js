@@ -3,16 +3,20 @@ const Section = require('../models/section-model');
 exports.validateSectionIds = async (sections) => {
   // Check if all sections exists, then verify all the sections that exists are valid
   if (sections && sections.length > 0) {
-    //  Check if each question Id in req.body.sections exists in the Question model
-    const invalidSectionIds = await Section.find({
+    //  Check if each section Id in req.body.sections exists in the Section model
+    const validSections = await Section.find({
       _id: { $in: sections },
-    }).select('_id');
+    });
+    // Extract only the ids and convert them into string type to make comparisons easier
+    const validSectionsIds = validSections?.map((section) =>
+      section._id.toString()
+    );
 
     // Check if all section Ids are valid
-    const isValidSections = sections.every((sectionId) =>
-      invalidSectionIds.includes(sectionId.toString())
-    );
-    return isValidSections;
+    const sectionsValid = sections.every((section) => {
+      return validSectionsIds.includes(section.toString());
+    });
+    return sectionsValid;
   }
   return true;
 };
