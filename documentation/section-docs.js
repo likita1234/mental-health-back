@@ -25,7 +25,7 @@
 
 /**
  * @swagger
- * 
+ *
  * /api/v1/section:
  *   post:
  *     summary: Add a new section
@@ -54,7 +54,7 @@
  *                 section: {}
  *
  *
- * /api/v1/section/{sectionId}:
+ * /api/v1/section/{id}:
  *   get:
  *     summary: Get Section Details
  *     description: Retrieve details of a specific section by ID
@@ -64,7 +64,7 @@
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: sectionId
+ *         name: id
  *         required: true
  *         description: Section Id
  *         schema:
@@ -101,7 +101,7 @@
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - name: sectionId
+ *       - name: id
  *         in: path
  *         required: true
  *         description: ID of the section to update
@@ -129,4 +129,29 @@
  *                title: "Section title"
  *                description: "Section description"
  *                questions: []
+ *
+ *   delete:
+ *     summary: Delete Section by ID
+ *     description: Delete a specific section by ID
+ *     tags:
+ *       - Sections
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the Section to be deleted
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Section deleted successfully
+ *       '404':
+ *         description: No section found with the provided ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *
  */
