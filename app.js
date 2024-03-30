@@ -14,7 +14,8 @@ const authRouter = require('./routes/auth-routes');
 const userRouter = require('./routes/user-routes');
 const tourRouter = require('./routes/tour-routes');
 const questionRouter = require('./routes/question-routes');
-const sectionRouter = require('./routes/section-routes')
+const sectionRouter = require('./routes/section-routes');
+const assessmentFormRouter = require('./routes/assessment-form-routes');
 
 const app = express();
 
@@ -64,7 +65,7 @@ app.use(
       'difficulty',
       'price',
     ],
-  }),
+  })
 );
 
 // This will serve your public folder where you can put your static files and use throughout the application
@@ -87,6 +88,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/question', questionRouter);
 app.use('/api/v1/section', sectionRouter);
+app.use('/api/v1/assessmentForm', assessmentFormRouter);
 
 // Swagger By Default in the begining
 app.use('/docs', SwaggerUI.serve, SwaggerUI.setup(swaggerSpec));
