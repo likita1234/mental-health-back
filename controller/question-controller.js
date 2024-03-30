@@ -1,7 +1,7 @@
 const Question = require('../models/question-model');
 const QuestionOption = require('../models/question-option-model');
 const APIFeatures = require('../utils/api-features');
-// const AppError = require('../utils/app-errors');
+const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
 
 // =======> Extract all questions
@@ -61,4 +61,26 @@ exports.addQuestion = catchAsync(async (req, res, next) => {
       question: populatedQuestion,
     },
   });
+});
+
+// ======> Get question details
+exports.getQuestionDetails = catchAsync(async (req, res, next) => {
+  // 1) Check if question exists
+  const existingQuestion = await Question.findById(req.params.id)
+    .select('-__v')
+    .populate({
+      path: 'options',
+      select: '-__v',
+    });
+  // 2) If question doesn't exists then return 404
+  if (!existingQuestion) {
+    return next(new AppError('No question found with that id', 404));
+  }
+  // 3) Else return the question details
+  else {
+    return res.status(200).json({
+      status: 'success',
+      data: existingQuestion,
+    });
+  }
 });

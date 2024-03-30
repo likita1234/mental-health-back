@@ -11,7 +11,7 @@
  *     tags:
  *       - Questions
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Successful response
@@ -29,7 +29,7 @@
  *     tags:
  *       - Questions
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     requestBody:
  *       description: Question details
  *       required: true
@@ -50,5 +50,47 @@
  *               status: success
  *               data:
  *                 question: {}
+ * 
+ * 
+ * /api/v1/question/{id}:
+ *   get:
+ *     summary: Get Question Details
+ *     description: Retrieve details of a specific question by ID
+ *     tags:
+ *       - Questions
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the question
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Question details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: Request status
+ *                 data:
+ *                   type: object
+ *                   description: Question details
+ *               example:
+ *                 status: 'success'
+ *                 data: 
+ * 
+ *       '404':
+ *         description: No question found with the provided ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ 
  */
 
