@@ -7,6 +7,7 @@ const catchAsync = require('../utils/catch-async');
 
 const Answer = require('../models/answer-model');
 const QuestionController = require('../controller/question-controller');
+const SectionController = require('../controller/section-controller');
 
 const { validateQuestionIds } = require('../validators/section-validators');
 const {
@@ -98,6 +99,13 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
     }
     // ========> CASE 1.2:- NLP included where its only for text area type or text types
   }
+  // CASE 2: type =======> section
+  else if (type === 'section') {
+    // CASE 2.1: chartType ===========> question-ratings-summation
+    if (chartType === 'question-ratings-summation') {
+      metricData = await this.getQuestionRatingsSummation(formId, sectionId);
+    }
+  }
   res.status(200).json({
     status: 'success',
     data: {
@@ -124,6 +132,7 @@ exports.fetchMetricDetails = async (metricId) => {
 };
 
 // Helpers for aggregation of data
+// Later optimize the questionId and questionDetails
 exports.getAggregatedData = async (formId, questionId, questionDetails) => {
   // Extract all the options from the questionDetails first
   const optionsMappings = getOptionsDetails(questionDetails);
@@ -199,6 +208,98 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
     },
   ]);
   return { ...responseData[0], labels: [defaultGroupingLabel] };
+};
+
+exports.getQuestionRatingsSummation = async (formId, sectionId) => {
+  // First fetch the section details
+  const sectionDetails = await SectionController.fetchSectionDetailsById(
+    sectionId
+  );
+  // console.log(sectionDetails);
+  // Extract all the questionIds in mongoose.Types.ObjectId format
+  const allQuestionIds = sectionDetails?.questions.map((question) => {
+    return mongoose.Types.ObjectId(question._id);
+    // return question._id;
+  });
+  console.log(allQuestionIds);
+  // Your aggregation pipeline
+  const responseData = await Answer.aggregate([
+    // Match the condition ======> formId
+    {
+      $match: {
+        formId: mongoose.Types.ObjectId(formId),
+      },
+    },
+    // Group by userId and push all answers inside
+    {
+      $group: {
+        _id: '$userId',
+        answers: { $push: '$$ROOT' }, // Push entire documents into the answers array
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        answers: {
+          $filter: {
+            input: '$answers',
+            as: 'answer',
+            cond: {
+              $in: [
+                '$$answer.questionId',
+                // allQuestionIds,
+                // allQuestionIds.map((id) => mongoose.Types.ObjectId(id)),
+                [
+                  mongoose.Types.ObjectId('65d5ee0a9180ec34b4a0b845'),
+                  mongoose.Types.ObjectId('65d5ef029180ec34b4a0b8ac'),
+                  mongoose.Types.ObjectId('65d5efdd9180ec34b4a0b8dc'),
+                  mongoose.Types.ObjectId('65d5f0cc9180ec34b4a0b90e'),
+                  mongoose.Types.ObjectId('65d5f1709180ec34b4a0b942'),
+                ],
+              ],
+            },
+          },
+        },
+      },
+    },
+    // Convert answer field to integer format for each document in the answers array
+    {
+      $addFields: {
+        answers: {
+          $map: {
+            input: '$answers',
+            as: 'answer',
+            in: {
+              $mergeObjects: [
+                '$$answer',
+                {
+                  answer: {
+                    $toInt: { $multiply: [{ $toInt: '$$answer.answer' }, 4] }, // Multiply answer by 4 and convert to integer
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+    // Calculate the sum of answers for each document
+    {
+      $addFields: {
+        WHOIndexTotalSum: {
+          $reduce: {
+            input: '$answers',
+            initialValue: 0,
+            in: {
+              $add: ['$$value', '$$this.answer'], // sum of answer field
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  return responseData;
 };
 
 // Extract options details in formatted manner
