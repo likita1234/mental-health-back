@@ -7,9 +7,15 @@ const router = express.Router();
 
 router.get('/', authController.validateToken, sectionController.getAllSections);
 
+router.get(
+  '/:sectionId',
+  authController.validateToken,
+  sectionController.getSectionDetails
+);
+
 router.post('/', authController.validateToken, sectionController.addSection);
 
-router.post(
+router.patch(
   '/:sectionId',
   authController.validateToken,
   sectionController.updateSection

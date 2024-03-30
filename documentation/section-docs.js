@@ -25,6 +25,7 @@
 
 /**
  * @swagger
+ * 
  * /api/v1/section:
  *   post:
  *     summary: Add a new section
@@ -54,6 +55,44 @@
  *
  *
  * /api/v1/section/{sectionId}:
+ *   get:
+ *     summary: Get Section Details
+ *     description: Retrieve details of a specific section by ID
+ *     tags:
+ *       - Sections
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: sectionId
+ *         required: true
+ *         description: Section Id
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Section details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: Request status
+ *                 data:
+ *                   type: object
+ *                   description: Section details
+ *               example:
+ *                 status: 'success'
+ *                 data: {}
+ *       '404':
+ *         description: No section found with the provided ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *
  *   patch:
  *     summary: Update Section
  *     description: Update details of the section
@@ -61,6 +100,13 @@
  *       - Sections
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: sectionId
+ *         in: path
+ *         required: true
+ *         description: ID of the section to update
+ *         schema:
+ *           type: string
  *     requestBody:
  *       description: Section details
  *       required: true
@@ -83,5 +129,4 @@
  *                title: "Section title"
  *                description: "Section description"
  *                questions: []
- *
  */
