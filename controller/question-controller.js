@@ -7,10 +7,9 @@ const catchAsync = require('../utils/catch-async');
 // =======> Extract all questions
 exports.getAllQuestions = catchAsync(async (req, res, next) => {
   // Execute Query
-  const features = new APIFeatures(
-    Question.find().populate({ path: 'options', select: '-__v' }),
-    req.query,
-  )
+  // =========> Avoid populating on all questions, you can make them available during question details
+  // Question.find().populate({ path: 'options', select: '-__v' })
+  const features = new APIFeatures(Question.find(), req.query)
     .filter()
     .sort()
     .limitFields()
