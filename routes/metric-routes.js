@@ -10,16 +10,18 @@ router
   .get(authController.validateToken, metricController.getAllMetrics)
   .post(authController.validateToken, metricController.addMetric);
 
-// =================> Question wise generic data analysis
-router.get('/:metricId/data', metricController.getMetricData);
-
-// ______________________________________________________
 // ======================================================
+// ______________________________________________________
 
+// =================> Question wise generic data analysis
 // =================> WHO-5 Summation Calculation data analysis
+router.get('/:metricId/data', metricController.getMetricData);
 
 // =================> Section Wise :- All Questions Included analysis (Filter out open end)
 
 // =================> All Sections Ratings Questions based :- Correlation analysis (Pearson) and Regression Analysis
+
+// ______________________________________________________
+// ======================================================
 
 module.exports = router;
