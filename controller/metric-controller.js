@@ -15,7 +15,8 @@ const {
 } = require('../validators/assessment-form-validators');
 
 // Resuable variables
-const unwantedTypes = ['ratings']; // To filter out ratings type from the sectionQuestionIds
+// To filter out unwanted type from the sectionQuestionIds
+const unwantedTypes = ['ratings', 'text', 'longtext'];
 
 // =======> Extract all metrics
 exports.getAllMetrics = catchAsync(async (req, res, next) => {
