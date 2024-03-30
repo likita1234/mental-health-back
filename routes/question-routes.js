@@ -5,29 +5,22 @@ const questionController = require('../controller/question-controller');
 
 const router = express.Router();
 
-router.get(
-  '/',
-  authController.validateToken,
-  questionController.getAllQuestions
-);
+router
+  .route('/')
+  .get(authController.validateToken, questionController.getAllQuestions)
+  .post(
+    authController.validateToken,
+    //   authController.restrictTo('admin', 'superadmin'),
+    questionController.addQuestion
+  );
 
-router.post(
-  '/',
-  authController.validateToken,
-  //   authController.restrictTo('admin', 'superadmin'),
-  questionController.addQuestion
-);
-
-router.get(
-  '/:id',
-  authController.validateToken,
-  questionController.getQuestionDetails
-);
-
-router.delete(
-  '/:id',
-  authController.validateToken,
-  // authController.restrictTo('admin'),
-  questionController.deleteQuestion
-);
+router
+  .route('/:id')
+  .get(authController.validateToken, questionController.getQuestionDetails)
+  .patch(authController.validateToken, questionController.updateQuestion)
+  .delete(
+    authController.validateToken,
+    // authController.restrictTo('admin'),
+    questionController.deleteQuestion
+  );
 module.exports = router;
