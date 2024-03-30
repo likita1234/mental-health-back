@@ -79,27 +79,16 @@ exports.getAllAnswers = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(Answer.find(), req.query)
     .filter()
     .sort()
-    .limitFields()
-    .paginate();
-  const answers = await features.query;
-
-  // Create a new APIFeatures instance without pagination to count total documents
-  const countFeatures = new APIFeatures(
-    Answer.find({ active: true }),
-    req.query
-  )
-    .filter()
-    .sort()
     .limitFields();
+  // .paginate(); //No pagination required here, we will fetch everything
 
-  // Count the total number of documents without pagination
-  const total = await Answer.countDocuments(countFeatures.query.getFilter());
+  const answers = await features.query;
 
   res.status(200).json({
     status: 'success',
     data: {
       answers,
-      total,
+      total: answers.length,
     },
   });
 });
