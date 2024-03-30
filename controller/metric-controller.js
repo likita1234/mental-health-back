@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Metric = require('../models/metric-model');
 
 const APIFeatures = require('../utils/api-features');
@@ -48,8 +49,23 @@ exports.addMetric = catchAsync(async (req, res, next) => {
 // Make data analysis on the basis of individual question representing a particular form
 // questionId, formId and chartType mandatory
 exports.getMetricData = catchAsync(async (req, res, next) => {
-  // Extract all the params
-  const { formId, questionId, chartType } = req.body;
+  // Extract metricId from params
+  const { metricId } = req.params;
+  //   Fetch metric details first
+  const existingMetric = await Metric.findOne({
+    _id: metricId,
+    active: true,
+  });
+
+  //   Check if metric exists
+  if (!existingMetric) {
+    return next(
+      new AppError(`Metric details with ID ${metricId} not found`, 400)
+    );
+  }
+
+  // Otherwise, extract the required information from metric details
+  const { title, description, formId, questionId, chartType } = existingMetric;
 
   const questionDetails = await QuestionController.fetchQuestionDetailsById(
     questionId
@@ -69,7 +85,11 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    data: responseData,
+    data: {
+      title,
+      description,
+      metricData: responseData,
+    },
   });
 });
 
