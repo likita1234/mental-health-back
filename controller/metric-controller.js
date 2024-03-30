@@ -136,18 +136,18 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
       const data = await this.getQuestionRatingsSummation(formId, sectionId);
       let labels = [];
       let counts = [];
-      let answers = [];
+      // let answers = [];
       for (let i = 0; i < data?.length; i++) {
         labels.push(data[i].label);
         counts.push(data[i].count);
-        answers = answers.concat(data[i].answers);
+        // answers = answers.concat(data[i].answers);
       }
       metricData = {
         data: {
           labels,
           data: [{ label: title, count: counts }],
         },
-        answers,
+        // answers,
       };
     }
   }
@@ -210,7 +210,7 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
   //   // return question._id;
   // });
   // Your aggregation pipeline
-  const responseData = await Answer.aggregate([
+  return await Answer.aggregate([
     // Match the condition ======> formId
     {
       $match: {
@@ -289,7 +289,7 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
       $group: {
         _id: '$WHOIndexTotalSum',
         count: { $sum: 1 },
-        answers: { $addToSet: '$answers' },
+        // answers: { $addToSet: '$answers' }, // Removed temp
       },
     },
     // Sort by _id in ascending order
@@ -299,8 +299,6 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
     // Remove the _id key
     { $unset: '_id' },
   ]);
-
-  return responseData;
 };
 
 const handleSingleDataAggregation = async (formId, questionId, branches) => {
