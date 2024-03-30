@@ -8,19 +8,26 @@ const router = express.Router();
 router.get(
   '/',
   authController.validateToken,
-  questionController.getAllQuestions,
+  questionController.getAllQuestions
 );
 
 router.post(
-  '/add',
+  '/',
   authController.validateToken,
   //   authController.restrictTo('admin', 'superadmin'),
-  questionController.addQuestion,
+  questionController.addQuestion
 );
 
 router.get(
   '/:id',
   authController.validateToken,
   questionController.getQuestionDetails
-)
+);
+
+router.delete(
+  '/:id',
+  authController.validateToken,
+  // authController.restrictTo('admin'),
+  questionController.deleteQuestion
+);
 module.exports = router;

@@ -22,8 +22,11 @@
  *               total: 5
  *               data:
  *                 questions: []
- * 
- * /api/v1/question/add:
+ */
+
+/**
+ * @swagger
+ * /api/v1/question:
  *   post:
  *     summary: Add a new question
  *     tags:
