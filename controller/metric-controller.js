@@ -150,6 +150,7 @@ exports.fetchMetricDetails = async (metricId) => {
 // Later optimize the questionId and questionDetails
 exports.getAggregatedData = async (formId, questionId, questionDetails) => {
   // Extract all the options from the questionDetails first
+  const isCheckboxType = questionDetails?.type === 'checkbox';
   const optionsMappings = getOptionsDetails(questionDetails);
   const defaultGroupingLabel = 'Group by ' + questionDetails?.title?.english;
   // Construct branches
@@ -158,70 +159,10 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
     then: mapping.label,
   }));
 
-  const responseData = await Answer.aggregate([
-    // Match only the documents where the answer is within the valid range (1-4)
-    {
-      $match: {
-        formId: mongoose.Types.ObjectId(formId),
-        questionId: mongoose.Types.ObjectId(questionId),
-      },
-    },
-    // Group the documents by the answer value and count occurrences
-    {
-      $group: {
-        _id: '$answer',
-        count: { $sum: 1 },
-      },
-    },
-    // Project to rename the answer values with their corresponding gender labels
-    {
-      $project: {
-        label: {
-          $switch: {
-            branches, //Already setup above
-            default: 'Unknown',
-          },
-        },
-        count: 1,
-        _id: 0,
-      },
-    },
-    // Group again to calculate the total count
-    {
-      $group: {
-        _id: null,
-        data: { $push: { label: '$label', count: '$count' } },
-        totalCount: { $sum: '$count' },
-      },
-    }, // Project to calculate percentage
-    {
-      $project: {
-        data: {
-          $map: {
-            input: '$data',
-            as: 'item',
-            in: {
-              label: '$$item.label',
-              count: '$$item.count',
-              percent: {
-                $round: [
-                  {
-                    $multiply: [
-                      { $divide: ['$$item.count', '$totalCount'] },
-                      100,
-                    ],
-                  },
-                  2,
-                ],
-              },
-            },
-          },
-        },
-        totalCount: 1,
-        _id: 0,
-      },
-    },
-  ]);
+  const responseData = !isCheckboxType
+    ? await handleSingleDataAggregation(formId, questionId, branches)
+    : [];
+
   return { ...responseData[0], labels: [defaultGroupingLabel] };
 };
 
@@ -327,6 +268,73 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
   ]);
 
   return responseData;
+};
+
+const handleSingleDataAggregation = async (formId, questionId, branches) => {
+  return await Answer.aggregate([
+    // Match only the documents where the answer is within the valid range (1-4)
+    {
+      $match: {
+        formId: mongoose.Types.ObjectId(formId),
+        questionId: mongoose.Types.ObjectId(questionId),
+      },
+    },
+    // Group the documents by the answer value and count occurrences
+    {
+      $group: {
+        _id: '$answer',
+        count: { $sum: 1 },
+      },
+    },
+    // Project to rename the answer values with their corresponding gender labels
+    {
+      $project: {
+        label: {
+          $switch: {
+            branches,
+            default: 'Unknown',
+          },
+        },
+        count: 1,
+        _id: 0,
+      },
+    },
+    // Group again to calculate the total count
+    {
+      $group: {
+        _id: null,
+        data: { $push: { label: '$label', count: '$count' } },
+        totalCount: { $sum: '$count' },
+      },
+    }, // Project to calculate percentage
+    {
+      $project: {
+        data: {
+          $map: {
+            input: '$data',
+            as: 'item',
+            in: {
+              label: '$$item.label',
+              count: '$$item.count',
+              percent: {
+                $round: [
+                  {
+                    $multiply: [
+                      { $divide: ['$$item.count', '$totalCount'] },
+                      100,
+                    ],
+                  },
+                  2,
+                ],
+              },
+            },
+          },
+        },
+        totalCount: 1,
+        _id: 0,
+      },
+    },
+  ]);
 };
 
 // Extract options details in formatted manner
