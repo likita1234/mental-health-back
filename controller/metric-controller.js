@@ -187,8 +187,8 @@ exports.getTableAnalysisByFormAndSection = catchAsync(
     const { formId, sectionId } = req.params;
     // Initiate an empty metric data
     let metricData = {};
-    console.log(formId, sectionId); // Extract all the questionIds in string format
-    const sectionQuestionIds =
+    // Extract all the questionIds
+    const { sectionDetails, sectionQuestionIds } =
       await SectionController.fetchQuestionIdsBySectionId(
         sectionId,
         unwantedTypes
@@ -200,7 +200,7 @@ exports.getTableAnalysisByFormAndSection = catchAsync(
     res.status(200).json({
       status: 'success',
       data: {
-        id: _id,
+        // sectionDetails,
         metricData,
       },
     });
@@ -478,8 +478,7 @@ const handleMultipleDataAggregation = async (formId, questionId, branches) => {
 
 // Handler for Section type Questions Table
 const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
-  console.log(sectionQuestionIds);
-  const data = await Answer.aggregate([
+  const aggregatedData = await Answer.aggregate([
     // Match the condition ======> formId
     {
       $match: {
@@ -526,8 +525,78 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
     },
   ]);
 
-  // console.log(data);
-  return data;
+  // Step 1: Inititate a questionOptions array Extract options for each questionId and push it in
+  const allQuestionOptions = await Promise.all(
+    sectionQuestionIds.map(async (currQuestionId) => {
+      const { questionOptions } =
+        await QuestionController.fetchQuestionOptionsByQuestionId(
+          currQuestionId
+        );
+      return { questionId: currQuestionId, questionOptions };
+    })
+  );
+
+  // Step 2: Group the answers by questionId
+  const groupedData = aggregatedData.reduce((acc, obj) => {
+    obj.answers.forEach((answer) => {
+      if (!acc[answer.questionId]) {
+        acc[answer.questionId] = [];
+      }
+      acc[answer.questionId].push(answer.answer);
+    });
+    return acc;
+  }, {});
+
+  // console.log(allQuestionOptions);
+
+  // Step 3: Calculate sums of answers for each rating
+  const result = Object.entries(groupedData).map(([questionId, answers]) => {
+    const answerCounts = answers.reduce((counts, answer) => {
+      counts[answer] = (counts[answer] || 0) + 1;
+      return counts;
+    }, {});
+
+    // Initialize sums for ratings 1 to 5
+    const sumAnswers = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+    // Calculate sums for each rating
+    Object.entries(sumAnswers).forEach(([rating, _]) => {
+      sumAnswers[rating] = answerCounts[rating] || 0;
+    });
+
+    return {
+      questionId,
+      answers: [sumAnswers],
+    };
+  }); // Create a mapping object for answer values to labels
+  const optionsMap = allQuestionOptions.reduce(
+    (map, { questionId, questionOptions }) => {
+      map[questionId] = {};
+      questionOptions.forEach((option) => {
+        map[questionId][option.value] = option.label;
+      });
+      return map;
+    },
+    {}
+  );
+
+  // Use the mapping object to update answer keys to labels in the result
+  const mappedResult = result.map(({ questionId, answers }) => {
+    const mappedAnswers = answers.map((answer) => {
+      const mappedAnswer = {};
+      for (const [value, count] of Object.entries(answer)) {
+        mappedAnswer[optionsMap[questionId][value]] = count;
+      }
+      return mappedAnswer;
+    });
+
+    return {
+      questionId,
+      answers: mappedAnswers,
+    };
+  });
+
+  return mappedResult;
 };
 
 // Handler sorting orders by options
