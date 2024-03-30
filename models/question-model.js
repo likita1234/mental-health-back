@@ -43,11 +43,16 @@ const questionSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  answer: {
+    type: String,
+    default: null,
+  },
 });
 
 // ===========> Updated date updated everytime new save
 questionSchema.pre('save', function (next) {
   this.updatedDate = new Date();
+  this.answer = null;
   next();
 });
 
