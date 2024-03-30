@@ -23,8 +23,11 @@ const assessmentFormSchema = new mongoose.Schema({
   },
   sections: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Section',
+      order: Number,
+      sectionId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Section',
+      },
     },
   ],
 });
@@ -34,9 +37,13 @@ assessmentFormSchema.pre('save', function (next) {
   next();
 });
 
-const AssessmentForm = mongoose.model(
-  'AssessmentForm',
-  assessmentFormSchema,
-);
+// ==========>  Soft Delete Methods
+assessmentFormSchema.methods.softDelete = async function () {
+  //  Otherwise continue
+  this.active = false;
+  await this.save();
+};
+
+const AssessmentForm = mongoose.model('AssessmentForm', assessmentFormSchema);
 
 module.exports = AssessmentForm;

@@ -45,7 +45,10 @@ exports.addAssessmentForm = catchAsync(async (req, res, next) => {
 // Update existing form
 exports.updateAssessmentForm = catchAsync(async (req, res, next) => {
   // 1) Check if id exists
-  const existingForm = await AssessmentForm.findById(req.params.id);
+  const existingForm = await AssessmentForm.findOne({
+    id: req.params.id,
+    active: true,
+  });
   if (!existingForm) {
     return next(new AppError('Assessment Form with that id doesnt exist', 404));
   }
@@ -73,8 +76,9 @@ exports.updateAssessmentForm = catchAsync(async (req, res, next) => {
 // extract all assessment forms
 exports.getAllAssessmentForms = catchAsync(async (req, res, next) => {
   // Execute Query
+  // .populate({ path: 'sections', select: '-__v' })
   const features = new APIFeatures(
-    AssessmentForm.find().populate({ path: 'sections', select: '-__v' }),
+    AssessmentForm.find({ active: true }),
     req.query
   )
     .filter()
@@ -82,11 +86,26 @@ exports.getAllAssessmentForms = catchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
   const forms = await features.query;
+
+  // Create a new APIFeatures instance without pagination to count total documents
+  const countFeatures = new APIFeatures(
+    AssessmentForm.find({ active: true }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields();
+
+  // Count the total number of documents without pagination
+  const total = await AssessmentForm.countDocuments(
+    countFeatures.query.getFilter()
+  );
+
   res.status(200).json({
     status: 'success',
-    total: forms.length,
     data: {
       forms,
+      total,
     },
   });
 });
@@ -94,7 +113,10 @@ exports.getAllAssessmentForms = catchAsync(async (req, res, next) => {
 // extract assessment form by id
 exports.getAssessmentFormDetails = catchAsync(async (req, res, next) => {
   // 1) Check if assessment form with the id exists or not
-  const existingForm = await AssessmentForm.findById(req.params.id)
+  const existingForm = await AssessmentForm.findOne({
+    _id: req.params.id,
+    active: true,
+  })
     .select('-__v')
     .populate({
       path: 'sections',
@@ -125,7 +147,10 @@ exports.getAssessmentFormDetails = catchAsync(async (req, res, next) => {
 // delete assessment form by id
 exports.deleteAssessmentForm = catchAsync(async (req, res, next) => {
   // 1) Check if assessment form exists, If assessment form doesnt exist, return error
-  const existingForm = await AssessmentForm.findByIdAndDelete(req.params.id);
+  const existingForm = await AssessmentForm.findOne({
+    _id: req.params.id,
+    active: true,
+  });
   if (!existingForm) {
     return next(new AppError('Assessment Form with that id doesnt exist', 404));
   }
