@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cors = require('cors');
 // Routes
 const authRouter = require('./routes/auth-routes');
 const userRouter = require('./routes/user-routes');
@@ -13,11 +14,12 @@ const tourRouter = require('./routes/tour-routes');
 const app = express();
 
 const globalErrorHandler = require('./controller/error-controller');
-const AppError = require('./utils/app-errors');
-
 // 1) MIDDLEWARES
 // Security HTTP headers
 app.use(helmet());
+
+// CORS Policy
+app.use(cors());
 
 // Development logging
 // Middleware morgan has been added as it is simply a HTTP request logger middleware for node.js
@@ -70,11 +72,6 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
-
-// handle all the urls that couldn't be handled
-app.all('*', (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-});
 
 app.use(globalErrorHandler);
 
