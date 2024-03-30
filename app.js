@@ -16,6 +16,9 @@ const tourRouter = require('./routes/tour-routes');
 
 const app = express();
 
+// Set EJS as the view engine
+app.set('view engine', 'ejs');
+
 const globalErrorHandler = require('./controller/error-controller');
 // 1) MIDDLEWARES
 // Security HTTP headers
@@ -72,13 +75,19 @@ app.use((req, res, next) => {
 });
 
 // Add routes here
+// Root route for index.html file
+app.get('/', (req, res) => {
+  res.render('index', {
+    host:req.headers.host,
+  });
+});
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
 
-
 // Swagger By Default in the begining
-app.use('/', SwaggerUI.serve, SwaggerUI.setup(swaggerSpec));
+app.use('/docs', SwaggerUI.serve, SwaggerUI.setup(swaggerSpec));
 // Docs in JSON format
 app.get('/docs.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
