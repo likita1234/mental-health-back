@@ -17,11 +17,20 @@ exports.getAllQuestions = catchAsync(async (req, res, next) => {
     .paginate();
   const questions = await features.query;
 
+  // Create a new APIFeatures instance without pagination to count total documents
+  const countFeatures = new APIFeatures(Question.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields();
+
+  // Count the total number of documents without pagination
+  const total = await Question.countDocuments(countFeatures.query.getFilter());
+
   res.status(200).json({
     status: 'success',
-    total: questions.length,
     data: {
-      questions,
+      questions,                                                              
+      total,
     },
   });
 });
