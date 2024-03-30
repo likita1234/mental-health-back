@@ -1,5 +1,5 @@
 const swaggerJsdoc = require('swagger-jsdoc');
-const { version } = '../package.json';
+const { version } = require('../package.json');
 
 const options = {
   definition: {
@@ -23,10 +23,9 @@ const options = {
       },
     ],
   },
-  apis: ['../routes/*.js'],
+  apis: ['./routes/*.js'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
-
 
 module.exports = swaggerSpec;
