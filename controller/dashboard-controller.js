@@ -48,52 +48,23 @@ exports.getDashboardData = catchAsync(async (req, res, next) => {
   if (!existingDashboard) {
     return next(new AppError('Invalid dashbard id in the request', 400));
   }
+  // Extract basic dashboard details
+  const { _id, title, description } = existingDashboard;
   // Extract metrics first
-  const metrics = existingDashboard.metrics;
-  // Fetch metric ids only
-  // Make sure to order here by metric order
-  const metricIds = metrics?.map((metricObj) => metricObj.metricId);
-
-  // Dashboard metrics data fetch
-  // Create a variable to store the data in array
-
-  let metricsDataArr = [];
-
-  for (let i = 0; i < metricIds.length; i++) {
-    const metricId = metricIds[i];
-    // Fetch metric details
-    const metricDetails = await metricController.fetchMetricDetails(metricId);
-
-    if (metricDetails) {
-      // Now, extract the required information from metric details
-      const { _id, title, description, formId, questionId, chartType } =
-        metricDetails;
-        
-      // Now, fetch question details
-      const questionDetails = await fetchQuestionDetailsById(questionId);
-
-      if (questionDetails) {
-        const metricData = await metricController.getAggregatedData(
-          formId,
-          questionId,
-          questionDetails
-        );
-        metricsDataArr.push({
-          _id,
-          title,
-          description,
-          chartType,
-          data: metricData,
-        });
-      }
-    }
-  }
-  //   Loop through each metric and fetch each metric data now
+  const metrics = existingDashboard.metrics?.map((metricObj) => {
+    return {
+      order: metricObj.order,
+      metricId: metricObj.metricId,
+    };
+  });
 
   res.status(200).json({
     status: 'success',
     data: {
-      metrics: metricsDataArr,
+      _id,
+      title,
+      description,
+      metrics,
     },
   });
 });
