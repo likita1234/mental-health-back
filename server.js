@@ -1,8 +1,5 @@
 const dotenv = require('dotenv');
 const AppError = require('./utils/app-errors');
-const SwaggerUI = require('swagger-ui-express');
-const swaggerSpec = require('./utils/swagger');
-
 dotenv.config({ path: './config.env' });
 const app = require('./app');
 
@@ -16,13 +13,6 @@ const server = app.listen(port, () => {
   console.log(`App running on server:: localhost:${port}...`);
 });
 
-// Swagger By Default in the begining
-app.use('/', SwaggerUI.serve, SwaggerUI.setup(swaggerSpec));
-// Docs in JSON format
-app.get('/docs.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerSpec);
-});
 
 // handle all the urls that couldn't be handled
 app.all('*', (req, res, next) => {

@@ -6,6 +6,9 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
+const SwaggerUI = require('swagger-ui-express');
+const swaggerSpec = require('./utils/swagger');
+
 // Routes
 const authRouter = require('./routes/auth-routes');
 const userRouter = require('./routes/user-routes');
@@ -72,6 +75,15 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
+
+
+// Swagger By Default in the begining
+app.use('/', SwaggerUI.serve, SwaggerUI.setup(swaggerSpec));
+// Docs in JSON format
+app.get('/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 app.use(globalErrorHandler);
 
