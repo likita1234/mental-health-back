@@ -9,10 +9,13 @@ const {
 // Create an assessment form
 exports.addAssessmentForm = catchAsync(async (req, res, next) => {
   // 1) Check if section exists, then verify all the sections that exists are valid,
+  const allSections = req.body.sections?.map(
+    (sectionObj) => sectionObj.sectionId
+  );
   //   If there are any invalid sections then return error
-  const isValidSections = await validateSectionIds(req.body.sections);
+  const isValidSections = await validateSectionIds(allSections);
   if (!isValidSections) {
-    return next(new AppError('Invalid question Id in the request body', 400));
+    return next(new AppError('Invalid section Id in the request body', 400));
   }
   // 2) Otherwise, Save the ASsessment Form data
   const newForm = await AssessmentForm.create({
@@ -46,23 +49,25 @@ exports.addAssessmentForm = catchAsync(async (req, res, next) => {
 exports.updateAssessmentForm = catchAsync(async (req, res, next) => {
   // 1) Check if id exists
   const existingForm = await AssessmentForm.findOne({
-    id: req.params.id,
+    _id: req.params.id,
     active: true,
   });
   if (!existingForm) {
     return next(new AppError('Assessment Form with that id doesnt exist', 404));
   }
   // 2) Check if sections exists, then verify all the sections that exists are valid
-  const isValidSections = await validateSectionIds(req.body.sections);
+  const allSections = req.body.sections?.map((obj) => obj.sectionId);
+  const isValidSections = await validateSectionIds(allSections);
   // If there are any invalid sections then return error
   if (!isValidSections) {
     return next(new AppError('Invalid section Id in the request body', 400));
   }
   // 3) Update the details extracted from the parameters
-  existingForm.name = req.body.name;
   existingForm.title = req.body.title;
   existingForm.description = req.body.description;
+  existingForm.type = req.body.type;
   existingForm.sections = req.body.sections;
+
   await existingForm.save();
 
   res.status(200).json({
@@ -119,10 +124,10 @@ exports.getAssessmentFormDetails = catchAsync(async (req, res, next) => {
   })
     .select('-__v')
     .populate({
-      path: 'sections',
+      path: 'sections.sectionId',
       select: '-__v',
       populate: {
-        path: 'questions',
+        path: 'questions.questionId',
         select: '-__v',
         populate: {
           path: 'options',
@@ -155,8 +160,32 @@ exports.deleteAssessmentForm = catchAsync(async (req, res, next) => {
     return next(new AppError('Assessment Form with that id doesnt exist', 404));
   }
 
+  // Soft delete
+  await existingForm.softDelete();
+
   res.status(204).json({
     status: 'success',
     data: 'Assessment Form has been deleted',
+  });
+});
+
+// toggle assessment form poll activeness
+exports.toggleAssessmentPoll = catchAsync(async (req, res, next) => {
+  // Check if assessment form exists with that id
+  const existingForm = await AssessmentForm.findOne({
+    _id: req.params.id,
+    active: true,
+  });
+
+  if (!existingForm) {
+    return next(new AppError('Assessment Form with that id doesnt exist', 404));
+  }
+
+  // Toggle Assessment Form Poll
+  await existingForm.togglePoll();
+
+  res.status(204).json({
+    status: 'success',
+    data: 'Assessment Form poll status have been switched',
   });
 });
