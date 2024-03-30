@@ -2,13 +2,12 @@ const mongoose = require('mongoose');
 const LanguageSchema = require('./language-schema');
 const QuestionOptionSchema = mongoose.Schema(
   {
-    optionName: {
+    title: {
       type: LanguageSchema,
-      required: [true, 'Option name is mandatory'],
+      required: [true, 'Option title is mandatory'],
     },
     optionValue: {
       type: Number,
-      required: true,
     },
     createdAt: {
       type: Date,
@@ -21,7 +20,7 @@ const QuestionOptionSchema = mongoose.Schema(
   },
   {
     select: '_id, optionName,optionValue',
-  },
+  }
 );
 
 const QuestionOption = mongoose.model('QuestionOption', QuestionOptionSchema);
