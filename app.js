@@ -2,7 +2,9 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+// Routes
 const authRouter = require('./routes/auth-routes');
 const userRouter = require('./routes/user-routes');
 const tourRouter = require('./routes/tour-routes');
@@ -33,6 +35,12 @@ app.use('/api', limiter);
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
 
+// Data Sanitization against NoSQL query injection
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
+ 
 // This will serve your public folder where you can put your static files and use throughout the application
 app.use(express.static(`${__dirname}/public`));
 
