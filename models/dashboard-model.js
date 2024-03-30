@@ -17,7 +17,7 @@ const dashboardSchema = new mongoose.Schema({
   ],
   type: {
     type: String,
-    enum: ['normal', 'comparitive'],
+    enum: ['normal', 'comparative', 'personal'],
     default: 'normal',
   },
   author: {
