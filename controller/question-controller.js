@@ -78,19 +78,8 @@ exports.addQuestion = catchAsync(async (req, res, next) => {
 // ======> Get question details
 exports.getQuestionDetails = catchAsync(async (req, res, next) => {
   // 1) Check if question exists
-  const existingQuestion = await Question.findOne({
-    _id: req.params.id,
-    active: true,
-  })
-    .select('-__v')
-    .populate({
-      path: 'options',
-      select: '-__v',
-    })
-    .populate({
-      path: 'author',
-      select: 'name,surname,email,role',
-    });
+  // req.params.id
+  const existingQuestion = await this.fetchQuestionDetailsById(req.params.id);
   // 2) If question doesn't exists then return 404
   if (!existingQuestion) {
     return next(new AppError('No question found with that id', 404));
@@ -177,3 +166,24 @@ exports.deleteQuestion = catchAsync(async (req, res, next) => {
     data: 'Question has been deleted',
   });
 });
+
+// ===========> Function to fetch question details
+exports.fetchQuestionDetailsById = async (questionId) => {
+  try {
+    return await Question.findOne({
+      _id: questionId,
+      active: true,
+    })
+      .select('-__v')
+      .populate({
+        path: 'options',
+        select: '-__v',
+      })
+      .populate({
+        path: 'author',
+        select: 'name surname email role',
+      });
+  } catch (error) {
+    throw new Error('Error fetching question details');
+  }
+};
