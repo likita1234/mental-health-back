@@ -1,11 +1,13 @@
-const Answer = require('../models/Answer');
+const mongoose = require('mongoose');
+
+const Answer = require('../models/answer-model');
 const AssessmentForm = require('../models/assessment-form-model');
 const Question = require('../models/question-model');
 const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
 
-// Create answer
-exports.createAnswer = catchAsync(async (req, res) => {
+// Submit Form answer
+exports.submitFormAnswer = catchAsync(async (req, res) => {
   const { formId, userId, answers } = req.body;
 
   // Check if formId is provided

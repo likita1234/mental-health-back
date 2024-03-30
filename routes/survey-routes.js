@@ -1,6 +1,7 @@
 const express = require('express');
 
 // const authController = require('../controller/auth-controller');
+const answerController = require('../controller/answer-controller');
 const formController = require('../controller/assessment-form-controller');
 
 const router = express.Router();
@@ -11,6 +12,9 @@ const setDefaultParams = (req, res, next) => {
   next();
 };
 
-router.route('/').get(setDefaultParams, formController.getAllAssessmentForms);
+router
+  .route('/')
+  .get(setDefaultParams, formController.getAllAssessmentForms)
+  .post(answerController.submitFormAnswer);
 
 module.exports = router;

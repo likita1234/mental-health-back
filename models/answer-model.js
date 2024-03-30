@@ -5,11 +5,15 @@ const answerSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'AssessmentForm',
   },
+  type: {
+    type: String,
+    enum: ['private', 'public'],
+  },
   questionId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Question',
   },
-  answer: [String, Number],
+  answer: String,
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
