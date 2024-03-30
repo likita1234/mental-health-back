@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 // Routes
 const authRouter = require('./routes/auth-routes');
 const userRouter = require('./routes/user-routes');
@@ -40,7 +41,22 @@ app.use(mongoSanitize());
 
 // Data sanitization against XSS
 app.use(xss());
- 
+
+// Prevent paramter pollution :- Clears up query string
+// Make some changes here in the whitelist in the near future
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  }),
+);
+
 // This will serve your public folder where you can put your static files and use throughout the application
 app.use(express.static(`${__dirname}/public`));
 
