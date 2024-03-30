@@ -4,7 +4,7 @@ const Question = require('../models/question-model');
 const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
 
-// Create operation
+// Create answer
 exports.createAnswer = catchAsync(async (req, res) => {
   const { formId, userId, answers } = req.body;
 
@@ -63,6 +63,38 @@ exports.createAnswer = catchAsync(async (req, res) => {
     status: 'success',
     data: {
       answers: createdAnswers,
+    },
+  });
+});
+
+// Fetch all answers
+exports.getAllAnswers = catchAsync(async (req, res, next) => {
+  // Execute Query
+  // .populate({ path: 'sections', select: '-__v' })
+  const features = new APIFeatures(Answer.find({ active: true }), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const answers = await features.query;
+
+  // Create a new APIFeatures instance without pagination to count total documents
+  const countFeatures = new APIFeatures(
+    Answer.find({ active: true }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields();
+
+  // Count the total number of documents without pagination
+  const total = await Answer.countDocuments(countFeatures.query.getFilter());
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      answers,
+      total,
     },
   });
 });
