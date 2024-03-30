@@ -1,4 +1,5 @@
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
 dotenv.config({ path: './config.env' });
 const app = require('./app');
@@ -15,6 +16,14 @@ const server = app.listen(port, () => {
 
 app.get('/', () => {
   console.log('Welcome to my server');
+});
+
+process.on('uncaughtException', (err) => {
+  console.log(err.name, err.message);
+  console.log('UNCAUGHT Exception! Shutting down..');
+  server.close(() => {
+    process.exit(1);
+  });
 });
 
 // Handles all the unhandled promises errors in the overall application
