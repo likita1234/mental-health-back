@@ -166,7 +166,7 @@ exports.fetchSectionDetailsById = async (sectionId) => {
 exports.fetchQuestionIdsBySectionId = async (sectionId) => {
   const sectionDetails = await this.fetchSectionDetailsById(sectionId);
   // Now return all the question ids
-  return sectionDetails?.questions?.map((questionObj) => {
-    return questionObj?.questionId._id;
-  });
+  return sectionDetails?.questions?.map(
+    (questionObj) => questionObj?.questionId._id
+  );
 };
