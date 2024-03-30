@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+const APIFeatures = require('../utils/api-features');
 const Answer = require('../models/answer-model');
 const AssessmentForm = require('../models/assessment-form-model');
 const Question = require('../models/question-model');
@@ -75,8 +76,7 @@ exports.submitFormAnswer = catchAsync(async (req, res) => {
 // Fetch all answers
 exports.getAllAnswers = catchAsync(async (req, res, next) => {
   // Execute Query
-  // .populate({ path: 'sections', select: '-__v' })
-  const features = new APIFeatures(Answer.find({ active: true }), req.query)
+  const features = new APIFeatures(Answer.find(), req.query)
     .filter()
     .sort()
     .limitFields()
