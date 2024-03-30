@@ -16,7 +16,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     surname: req.body.surname,
     email: req.body.email,
     password: req.body.password,
-    confirmPassword: req.body.password,
+    confirmPassword: req.body.confirmPassword,
   });
 
   // Create a token
