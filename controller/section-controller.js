@@ -109,19 +109,7 @@ exports.getAllSections = catchAsync(async (req, res, next) => {
 // extract section by id
 exports.getSectionDetails = catchAsync(async (req, res, next) => {
   // 1) Check if section with the id exists or not
-  const existingSection = await Section.findOne({
-    _id: req.params.id,
-    active: true,
-  })
-    .select('-__v')
-    .populate({
-      path: 'questions.questionId',
-      select: '-__v',
-      populate: {
-        path: 'options',
-        select: '-__v',
-      },
-    });
+  const existingSection = await this.fetchSectionDetailsById(req.params.id);
 
   // 2) If section doesn't exist then return 404
   if (!existingSection) {
@@ -152,3 +140,24 @@ exports.deleteSection = catchAsync(async (req, res, next) => {
     data: 'Section has been deleted',
   });
 });
+
+// ===========> Function to fetch section details
+exports.fetchSectionDetailsById = async (sectionId) => {
+  try {
+    return await Section.findOne({
+      _id: sectionId,
+      active: true,
+    })
+      .select('-__v')
+      .populate({
+        path: 'questions.questionId',
+        select: '-__v',
+        populate: {
+          path: 'options',
+          select: '-__v',
+        },
+      });
+  } catch (error) {
+    throw new Error('Error fetching section details');
+  }
+};
