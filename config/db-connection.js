@@ -13,8 +13,14 @@ if (process.env.NODE_ENV === 'production') {
   connectionUrl = `${process.env.LOCAL_URL}/${process.env.LOCAL_DATABASE}`;
 }
 
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+  useUnifiedTopology: true
+}
 // connection
-mongoose.connect(connectionUrl, {});
+mongoose.connect(connectionUrl, mongooseOptions);
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
