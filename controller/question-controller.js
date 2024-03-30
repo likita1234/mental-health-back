@@ -217,3 +217,24 @@ exports.fetchQuestionOptionsByQuestionId = async (questionId) => {
     throw new Error('Error fetching question details');
   }
 };
+
+// ============> Given an array of question ids, generate id, title and options
+exports.fetchQuestionIdTitleAndOptions = async (questionIds) => {
+  try {
+    return await Promise.all(
+      questionIds.map(async (currQuestionId) => {
+        const { questionOptions, questionDetails } =
+          await this.fetchQuestionOptionsByQuestionId(currQuestionId);
+        const questionTitle = questionDetails?.title?.english;
+
+        return {
+          questionId: currQuestionId,
+          questionTitle,
+          questionOptions,
+        };
+      })
+    );
+  } catch (error) {
+    throw new Error('Error fetching all questions details');
+  }
+};

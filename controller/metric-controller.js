@@ -527,21 +527,8 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
   ]);
 
   // Step 1: Inititate a questionOptions array and extract options for each questionId and push it in
-  const allQuestionOptions = await Promise.all(
-    sectionQuestionIds.map(async (currQuestionId) => {
-      const { questionOptions, questionDetails } =
-        await QuestionController.fetchQuestionOptionsByQuestionId(
-          currQuestionId
-        );
-      const questionTitle = questionDetails?.title?.english;
-
-      return {
-        questionId: currQuestionId,
-        questionTitle,
-        questionOptions,
-      };
-    })
-  );
+  const allQuestionOptions =
+    await QuestionController.fetchQuestionIdTitleAndOptions(sectionQuestionIds);
 
   // Step 2: Convert the options into questionId: [optionsArray] format
   const optionsMap = allQuestionOptions.reduce(
