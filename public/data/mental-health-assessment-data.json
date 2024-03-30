@@ -1,0 +1,282 @@
+[
+    {
+        "name": {
+            "english": "Demographic Information",
+            "nepali": "जनसंख्या जानकारी"
+        },
+        "description": {},
+        "questions": [
+            {
+                "order": 1,
+                "questionId": "65d3a8780306fa10a0e60964"
+            },
+            {
+                "order": 2,
+                "questionId": "65d3ac2f0306fa10a0e609d0"
+            },
+            {
+                "order": 3,
+                "questionId": "65d3ae240306fa10a0e60a82"
+            },
+            {
+                "order": 4,
+                "questionId": "65d5e7ea9180ec34b4a0b774"
+            },
+            {
+                "order": 5,
+                "questionId": "65d5e8c09180ec34b4a0b7c4"
+            }
+        ]
+    },
+    {
+        "name": {
+            "english": "Mental Health Assessment",
+            "nepali": "मानसिक स्वास्थ्य मूल्यांकन"
+        },
+        "description": {},
+        "questions": [
+            {
+                "order": 1,
+                "questionId": "65d5ea0f9180ec34b4a0b81a"
+            }
+        ]
+    },
+    {
+        "name": {
+            "english": "WHO-5 (World Health Organization) Well-being Index Questionnaire",
+            "nepali": "WHO-5 (World Health Organization) कल्याण सूचकांक प्रश्नावली"
+        },
+        "description": {
+            "english": "The WHO-5 is a self-reported measure designed to evaluate your psychological health and general well-being. It consists of five simple questions that cover different aspects of well-being, including positive mood, vitality, and general interest in life. Each of the five items has a score ranging from 5 (All of the time) to 0 (At no time). The final score, which ranges from 0 to 25, is calculated by multiplying the raw score by 4. A score of 0 indicates the lowest possible well-being, while a score of 100 indicates the highest possible well-being.Please provide the most accurate and sincere response you can to each question. Your responses will be kept confidential and will be used exclusively for research.",
+            "nepali": "WHO-5 तपाईंको मनोवैज्ञानिक स्वास्थ्य र सामान्य कल्याणको मूल्याङ्कन गर्न डिजाइन गरिएको एक स्व-रिपोर्ट गरिएको उपाय हो। यसले सकारात्मक मूड, जीवन शक्ति र जीवनमा सामान्य चासो सहित कल्याणका विभिन्न पक्षहरूलाई समेट्ने पाँचवटा साधारण प्रश्नहरू समावेश गर्दछ। प्रत्येक पाँच वस्तुमा 5 (सबै समय) देखि 0 (कुनै समयमा) सम्मको स्कोर हुन्छ। 0 देखि 25 सम्मको अन्तिम स्कोर, कच्चा स्कोरलाई 4 द्वारा गुणा गरेर गणना गरिन्छ। 0 को स्कोरले सबैभन्दा कम सम्भावित कल्याणलाई संकेत गर्दछ, जबकि 100 को स्कोरले उच्चतम सम्भावित कल्याणलाई संकेत गर्दछ। कृपया प्रत्येक प्रश्नको सबैभन्दा सटीक र निष्कपट प्रतिक्रिया प्रदान गर्नुहोस्। तपाईंको प्रतिक्रियाहरू गोप्य राखिएको छ र अनुसन्धानको लागि विशेष रूपमा प्रयोग गरिनेछ।"
+        },
+        "questions": [
+            {
+                "order": 1,
+                "questionId": "65d5ee0a9180ec34b4a0b845"
+            },
+            {
+                "order": 2,
+                "questionId": "65d5ef029180ec34b4a0b8ac"
+            },
+            {
+                "order": 3,
+                "questionId": "65d5efdd9180ec34b4a0b8dc"
+            },
+            {
+                "order": 4,
+                "questionId": "65d5f0cc9180ec34b4a0b90e"
+            },
+            {
+                "order": 5,
+                "questionId": "65d5f1709180ec34b4a0b942"
+            }
+        ]
+    },
+    {
+        "name": {
+            "english": "Factors Affecting Mental Health",
+            "nepali": "मानसिक स्वास्थ्यलाई प्रभाव पर्ने कारणहरू"
+        },
+        "description": {},
+        "questions": [
+            {
+                "order": 1,
+                "questionId": "65d5f4d69180ec34b4a0b97f"
+            },
+            {
+                "order": 2,
+                "questionId": "65d5f7d89180ec34b4a0b9f8"
+            }
+        ],
+        "subSections": [
+            {
+                "name": {
+                    "english": "Academic Factor",
+                    "nepali": "शैक्षिक क्षेत्र"
+                },
+                "description": {},
+                "questions": [
+                    {
+                        "order": 1,
+                        "questionId": "65d60e95b62d2a1e04f5575f"
+                    },
+                    {
+                        "order": 2,
+                        "questionId": "65d60f9bb62d2a1e04f5586c"
+                    },
+                    {
+                        "order": 3,
+                        "questionId": "65d6108eb62d2a1e04f5589d"
+                    }
+                ]
+            },
+            {
+                "name": {
+                    "english": "Social Support Factor",
+                    "nepali": "सामाजिक समर्थनको क्षेत्र"
+                },
+                "description": {},
+                "questions": [
+                    {
+                        "order": 1,
+                        "questionId": "65d61383b62d2a1e04f558ec"
+                    },
+                    {
+                        "order": 2,
+                        "questionId": "65d6143eb62d2a1e04f55954"
+                    },
+                    {
+                        "order": 3,
+                        "questionId": "65d61515b62d2a1e04f55992"
+                    },
+                    {
+                        "order": 4,
+                        "questionId": "65d61c4ab62d2a1e04f559d4"
+                    },
+                    {
+                        "order": 5,
+                        "questionId": "65d61d8db62d2a1e04f55a0f"
+                    },
+                    {
+                        "order": 6,
+                        "questionId": "65d61f23b62d2a1e04f55a52"
+                    },
+                    {
+                        "order": 7,
+                        "questionId": "65d62051b62d2a1e04f55ac2"
+                    }
+                ]
+            },
+            {
+                "name": {
+                    "english": "Socio-cultural Adaptation",
+                    "nepali": "सांस्कृतिक सांस्कृतिक लागु गर्ने क्षेत्र"
+                },
+                "description": {},
+                "questions": [
+                    {
+                        "order": 1,
+                        "questionId": "65d62669b62d2a1e04f55b9a"
+                    },
+                    {
+                        "order": 2,
+                        "questionId": "65d652a221b8b42678b18de0"
+                    },
+                    {
+                        "order": 3,
+                        "questionId": "65d653de21b8b42678b18e64"
+                    },
+                    {
+                        "order": 4,
+                        "questionId": "65d654e821b8b42678b18eaf"
+                    },
+                    {
+                        "order": 5,
+                        "questionId": "65d6554821b8b42678b18f30"
+                    },
+                    {
+                        "order": 6,
+                        "questionId": "65d6558521b8b42678b18f76"
+                    },
+                    {
+                        "order": 7,
+                        "questionId": "65d655b921b8b42678b18fbd"
+                    },
+                    {
+                        "order": 8,
+                        "questionId": "65d655ed21b8b42678b19045"
+                    }
+                ]
+            },
+            {
+                "name": {
+                    "english": "Language Barrier and Communication",
+                    "nepali": "भाषाको बाधा र संवाद"
+                },
+                "description": {},
+                "questions": [
+                    {
+                        "order": 1,
+                        "questionId": "65d656b821b8b42678b1909c"
+                    },
+                    {
+                        "order": 2,
+                        "questionId": "65d6573721b8b42678b19162"
+                    },
+                    {
+                        "order": 3,
+                        "questionId": "65d6576921b8b42678b191b2"
+                    }
+                ]
+            },
+            {
+                "name": {
+                    "english": "Finance",
+                    "nepali": "आर्थिक"
+                },
+                "description": {},
+                "questions": [
+                    {
+                        "order": 1,
+                        "questionId": "65d657e921b8b42678b19206"
+                    },
+                    {
+                        "order": 2,
+                        "questionId": "65d6587321b8b42678b19266"
+                    },
+                    {
+                        "order": 3,
+                        "questionId": "65d6599f21b8b42678b192d4"
+                    },
+                    {
+                        "order": 4,
+                        "questionId": "65d65a3c21b8b42678b1933e"
+                    }
+                ]
+            },
+            {
+                "name": {
+                    "english": "Lifestyle",
+                    "nepali": "जीवनशैली"
+                },
+                "description": {},
+                "questions": [
+                    {
+                        "order": 1,
+                        "questionId": "65d65ac621b8b42678b193a4"
+                    },
+                    {
+                        "order": 2,
+                        "questionId": "65d65b5b21b8b42678b1940e"
+                    }
+                ]
+            },
+            {
+                "name": {
+                    "english": "Academic and Mental Health Services Awareness",
+                    "nepali": "शैक्षिक र मानसिक स्वास्थ्य सेवा जानकारी"
+                },
+                "description": {},
+                "questions": [
+                    {
+                        "order": 1,
+                        "questionId": "65d65baf21b8b42678b19472"
+                    },
+                    {
+                        "order": 2,
+                        "questionId": "65d65c0321b8b42678b194d5"
+                    },
+                    {
+                        "order": 3,
+                        "questionId": "65d65c3621b8b42678b19537"
+                    },
+                    {
+                        "order": 4,
+                        "questionId": "65d65ca721b8b42678b1959a"
+                    }
+                ]
+            }
+        ]
+    }
+]
