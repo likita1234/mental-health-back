@@ -103,6 +103,47 @@ exports.getAllAnswers = catchAsync(async (req, res, next) => {
   });
 });
 
+// This function helps to create a copy of each answers by
+// copying data where questionId is A
+// replacing its questionId into B as you require
+exports.duplicateAnswerData = catchAsync(async (req, res, next) => {
+  // Get params
+  const { sourceQuestionId, destinationQuestionId } = req.params;
+  // Aggregate query to find and duplicate documents with sourceQuestionId
+  await Answer.aggregate([
+    {
+      $match: {
+        questionId: mongoose.Types.ObjectId(sourceQuestionId),
+      },
+    },
+    {
+      $project: {
+        formId: 1,
+        type: 1,
+        questionId: {
+          $literal: mongoose.Types.ObjectId(destinationQuestionId),
+        },
+        answer: 1,
+        userId: 1,
+        createdDate: 1,
+        _id: 0, // Exclude _id field from projection
+      },
+    },
+    {
+      $merge: {
+        into: 'answers',
+        on: '_id',
+        whenMatched: 'replace',
+        whenNotMatched: 'insert',
+      },
+    },
+  ]);
+  res.status(200).json({
+    status: 'success',
+    message: `Documents duplicated and stored in new collection`,
+  });
+});
+
 // This is not supported at the moment, dont use this and delete it later in future of make changes
 // Aggregate the gender information and display the data
 // At the moment, there is a limitation on its support only on mental health assessment form
