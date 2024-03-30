@@ -119,7 +119,7 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
         new AppError(`Question with ID ${questionId} not found`, 400)
       );
     }
-    // CASE 1.1: chartType-> table, bar, pie, line
+    // CASE 1.1: chartType-> table, bar, pie, line, ratings
     if (['table', 'bar', 'pie', 'line', 'ratings'].includes(chartType)) {
       metricData = await this.getAggregatedData(
         formId,
@@ -186,8 +186,7 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
   const optionsMappings = isRatingsType
     ? getRatingsOptionsDetails()
     : getOptionsDetails(questionDetails);
-  console.log(optionsMappings);
-  const defaultGroupingLabel = 'Group by ' + questionDetails?.title?.english;
+  const defaultGroupingLabel = 'Metric grouped by';
   // Construct branches
   const branches = optionsMappings?.map((mapping) => ({
     case: { $eq: ['$_id', mapping.value] },
