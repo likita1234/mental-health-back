@@ -15,6 +15,11 @@ const dashboardSchema = new mongoose.Schema({
       },
     },
   ],
+  type: {
+    type: String,
+    enum: ['normal', 'comparitive'],
+    default: 'normal',
+  },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
