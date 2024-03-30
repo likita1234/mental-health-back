@@ -11,7 +11,15 @@ const questionSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['text', 'number', 'dropdown', 'radio', 'checkbox', 'ratings'],
+    enum: [
+      'text',
+      'longtext',
+      'number',
+      'dropdown',
+      'radio',
+      'checkbox',
+      'ratings',
+    ],
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
