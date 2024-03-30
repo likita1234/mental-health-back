@@ -525,7 +525,7 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
     },
   ]);
 
-  // Step 1: Inititate a questionOptions array Extract options for each questionId and push it in
+  // Step 1: Inititate a questionOptions array and extract options for each questionId and push it in
   const allQuestionOptions = await Promise.all(
     sectionQuestionIds.map(async (currQuestionId) => {
       const { questionOptions } =
@@ -536,18 +536,28 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
     })
   );
 
-  // Step 2: Group the answers by questionId
+  // Step 2: Convert the options into questionId: [optionsArray] format
+  const optionsMap = allQuestionOptions.reduce(
+    (map, { questionId, questionOptions }) => {
+      map[questionId] = {};
+      questionOptions.forEach(({ label, value }) => {
+        map[questionId][value] = label;
+      });
+      return map;
+    },
+    {}
+  );
+
+  // Step 3: Group the answers by questionId
   const groupedData = aggregatedData.reduce((acc, obj) => {
-    obj.answers.forEach((answer) => {
-      if (!acc[answer.questionId]) {
-        acc[answer.questionId] = [];
+    obj.answers.forEach(({ questionId, answer }) => {
+      if (!acc[questionId]) {
+        acc[questionId] = [];
       }
-      acc[answer.questionId].push(answer.answer);
+      acc[questionId].push(answer);
     });
     return acc;
   }, {});
-
-  // console.log(allQuestionOptions);
 
   // Step 3: Calculate sums of answers for each rating
   const result = Object.entries(groupedData).map(([questionId, answers]) => {
@@ -559,42 +569,25 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
     // Initialize sums for ratings 1 to 5
     const sumAnswers = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
-    // Calculate sums for each rating
     Object.entries(sumAnswers).forEach(([rating, _]) => {
       sumAnswers[rating] = answerCounts[rating] || 0;
     });
 
-    return {
-      questionId,
-      answers: [sumAnswers],
-    };
-  }); // Create a mapping object for answer values to labels
-  const optionsMap = allQuestionOptions.reduce(
-    (map, { questionId, questionOptions }) => {
-      map[questionId] = {};
-      questionOptions.forEach((option) => {
-        map[questionId][option.value] = option.label;
-      });
-      return map;
-    },
-    {}
-  );
+    return { questionId, answers: [sumAnswers] };
+  });
 
   // Use the mapping object to update answer keys to labels in the result
-  const mappedResult = result.map(({ questionId, answers }) => {
-    const mappedAnswers = answers.map((answer) => {
-      const mappedAnswer = {};
-      for (const [value, count] of Object.entries(answer)) {
-        mappedAnswer[optionsMap[questionId][value]] = count;
-      }
-      return mappedAnswer;
-    });
-
-    return {
-      questionId,
-      answers: mappedAnswers,
-    };
-  });
+  const mappedResult = result.map(({ questionId, answers }) => ({
+    questionId,
+    answers: answers.map((answer) =>
+      Object.fromEntries(
+        Object.entries(answer).map(([value, count]) => [
+          optionsMap[questionId][value],
+          count,
+        ])
+      )
+    ),
+  }));
 
   return mappedResult;
 };
