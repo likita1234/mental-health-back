@@ -14,6 +14,9 @@ const {
   validateSectionIds,
 } = require('../validators/assessment-form-validators');
 
+// Resuable variables
+const unwantedTypes = ['ratings']; // To filter out ratings type from the sectionQuestionIds
+
 // =======> Extract all metrics
 exports.getAllMetrics = catchAsync(async (req, res, next) => {
   // Execute Query
@@ -133,8 +136,7 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   else if (type === 'section') {
     // In case of section, there are possibilites of requiring to use questionIds so we will fetch it here
     // Extract all the questionIds in string format
-    const unwantedTypes = ['ratings']; // To filter out ratings type from the sectionQuestionIds
-    const sectionQuestionIds =
+    const { sectionQuestionIds } =
       await SectionController.fetchQuestionIdsBySectionId(
         sectionId,
         unwantedTypes
@@ -165,11 +167,6 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
         },
         // answers, // for temp
       };
-    } else if (chartType === 'questions-table') {
-      metricData = await handleSectionTablesByQuestions(
-        formId,
-        sectionQuestionIds
-      );
     }
   }
   res.status(200).json({
@@ -188,7 +185,25 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
 exports.getTableAnalysisByFormAndSection = catchAsync(
   async (req, res, next) => {
     const { formId, sectionId } = req.params;
-    console.log(formId, sectionId);
+    // Initiate an empty metric data
+    let metricData = {};
+    console.log(formId, sectionId); // Extract all the questionIds in string format
+    const sectionQuestionIds =
+      await SectionController.fetchQuestionIdsBySectionId(
+        sectionId,
+        unwantedTypes
+      );
+    metricData = await handleSectionTablesByQuestions(
+      formId,
+      sectionQuestionIds
+    );
+    res.status(200).json({
+      status: 'success',
+      data: {
+        id: _id,
+        metricData,
+      },
+    });
   }
 );
 
