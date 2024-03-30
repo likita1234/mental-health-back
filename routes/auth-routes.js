@@ -1,56 +1,3 @@
-/**
- * @swagger
- * tags:
- *   name: Authentication
- *   description: API for user authentication
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     ErrorResponse:
- *       type: object
- *       properties:
- *         status:
- *           type: string
- *           description: Error status
- *         message:
- *           type: string
- *           description: Error message
- *       example:
- *         status: 'error'
- *         message: 'Error message here'
- *
- *     SignUpRequest:
- *       type: object
- *       properties:
- *         name:
- *           type: string
- *           description: User's name
- *         surname:
- *           type: string
- *           description: User's surname
- *         email:
- *           type: string
- *           format: email
- *           description: User's email
- *         password:
- *           type: string
- *           format: password
- *           description: User's password
- *         confirmPassword:
- *           type: string
- *           format: password
- *           description: Confirm password
- *       example:
- *         name: John
- *         surname: Doe
- *         email: john.doe@example.com
- *         password: mypassword
- *         confirmPassword: mypassword
- */
-
 const express = require('express');
 const authController = require('../controller/auth-controller');
 
@@ -58,11 +5,24 @@ const router = express.Router();
 
 /**
  * @swagger
+ * components:
+ *  securitySchemes:
+ *    bearerAuth:
+ *      type: http
+ *      scheme: bearer
+ *
+ * security:
+ * - bearerAuth:[]
+ */
+
+/**
+ * @swagger
  * /api/v1/auth/signup:
  *   post:
  *     summary: User SignUp
  *     description: This API is used for user sign up
- *     tags: [Authentication]
+ *     tags:
+ *        - Authentication
  *     requestBody:
  *       required: true
  *       content:
@@ -86,7 +46,8 @@ router.post('/signup', authController.signup);
  *   post:
  *     summary: User Login
  *     description: This API is used for user login
- *     tags: [Authentication]
+ *     tags:
+ *        - Authentication
  *     requestBody:
  *       required: true
  *       content:
@@ -128,7 +89,8 @@ router.post('/login', authController.signin);
  *   post:
  *     summary: Forgot Password
  *     description: Request to reset user's password
- *     tags: [Authentication]
+ *     tags:
+ *        - Authentication
  *     requestBody:
  *       required: true
  *       content:
@@ -165,7 +127,8 @@ router.post('/forgotPassword', authController.forgotPassword);
  *   patch:
  *     summary: Update Password
  *     description: Update user's password after successful login
- *     tags: [Authentication]
+ *     tags:
+ *        - Authentication
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -212,3 +175,49 @@ router.patch(
 );
 
 module.exports = router;
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           description: Error status
+ *         message:
+ *           type: string
+ *           description: Error message
+ *       example:
+ *         status: 'error'
+ *         message: 'Error message here'
+ *
+ *     SignUpRequest:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: User's name
+ *         surname:
+ *           type: string
+ *           description: User's surname
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User's email
+ *         password:
+ *           type: string
+ *           format: password
+ *           description: User's password
+ *         confirmPassword:
+ *           type: string
+ *           format: password
+ *           description: Confirm password
+ *       example:
+ *         name: John
+ *         surname: Doe
+ *         email: john.doe@example.com
+ *         password: mypassword
+ *         confirmPassword: mypassword
+ */

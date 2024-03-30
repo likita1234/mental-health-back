@@ -5,15 +5,14 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'REST API Docs',
+      title: 'InternationalMind APIs',
       version,
     },
     components: {
       securitySchemas: {
         bearerAuth: {
           type: 'http',
-          scheme: 'Bearer',
-          bearerFormat: 'JWT',
+          scheme: 'bearer',
         },
       },
     },
