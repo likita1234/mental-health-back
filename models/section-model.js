@@ -25,6 +25,10 @@ const sectionSchema = new mongoose.Schema({
       },
     },
   ],
+  active: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 sectionSchema.pre('save', function (next) {
@@ -32,10 +36,12 @@ sectionSchema.pre('save', function (next) {
   next();
 });
 
-// ===========> Pre-remove hook to check if the section is used in any AssessmentForms
-sectionSchema.pre('remove', async function (next) {
+// ==========>  modify active to false
+sectionSchema.methods.softDelete = async function () {
+  // check if the section is used in any AssessmentForms
   const formsWithSection = await mongoose.model('AssessmentForm').find({
-    sections: this._id,
+    'sections.sectionId': this._id,
+    active: true,
   });
 
   // Check if there is any sections that exists, if yes then throw error
@@ -47,14 +53,9 @@ sectionSchema.pre('remove', async function (next) {
       ', '
     )}`;
 
-    return next(new AppError(errorMessage, 400));
+    throw new AppError(errorMessage, 400);
   }
   //  Otherwise continue
-  next();
-});
-
-// ==========> Post-remove hook to modify active to false
-sectionSchema.methods.softDelete = async function (next) {
   this.active = false;
   await this.save();
 };
