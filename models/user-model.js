@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -30,10 +31,10 @@ const userSchema = new mongoose.Schema({
   confirmPassword: {
     type: String,
     validate: {
-      message: 'Password and Confirm Password field must match',
-      validator: function (val) {
-        return this.password === this.confirmPassword;
+      validator: function (el) {
+        return el === this.password;
       },
+      message: 'Password and Confirm Password field must match',
     },
   },
   active: {
@@ -45,11 +46,16 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-//  Middlewares to generate fullname
-
-userSchema.pre('save', function (next) {
+//  Middlewares to generate fullname, encrypt password
+userSchema.pre('save', async function (next) {
   this.fullname = this.name + ' ' + this.surname;
-  next();
+  //   Only run this function if password wasn't actually modified
+  if (!this.isModified('password')) return next();
+
+  //   Hash the password with the cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+  // dont save confirmPassword since its only needed for verification during signup not for save
+  this.confirmPassword = undefined;
 });
 
 const User = mongoose.model('User', userSchema);
