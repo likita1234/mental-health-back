@@ -1,7 +1,13 @@
+const _ = require('lodash');
+
 const AppError = require('./utils/app-errors');
 
+const QuestionId = Object.freeze({
+  Gender: '65d3a8780306fa10a0e60964',
+  Age: '65d3ac2f0306fa10a0e609d0',
+});
+
 // Make sure to keep the values always as string format
-// Genders
 const MentalHealthFormEnums = {
   Gender: Object.freeze({
     MALE: '1',
@@ -9,12 +15,18 @@ const MentalHealthFormEnums = {
     OTHERS: '3',
     PREFER_NOT_TO_SAY: '4',
   }),
+
+  Age: Object.freeze({
+    BELOW_20_YEARS: '1',
+    '20-30 years': '2',
+    '30-40 years': '3',
+    'Above 40 years': '4',
+  }),
 };
 
 // Enum helper
 const getCategoryArray = (enumTitle) => {
-  const formattedTitle = capitalizeFirstLetter(enumTitle);
-  const enumObj = MentalHealthFormEnums[formattedTitle];
+  const enumObj = MentalHealthFormEnums[enumTitle];
   // console.log(enumObj);
   if (!enumObj) {
     return new AppError(400, `Enum with title "${enumTitle}" not found.`);
@@ -24,7 +36,7 @@ const getCategoryArray = (enumTitle) => {
     if (enumObj.hasOwnProperty(key)) {
       enumArray.push({
         id: enumObj[key],
-        label: capitalizeFirstLetter(key?.replace(/_/g, ' ')?.toLowerCase()),
+        label: _.capitalize(_.toLower(key.replace(/_/g, ' '))),
       });
     }
   }
@@ -32,13 +44,9 @@ const getCategoryArray = (enumTitle) => {
   return enumArray;
 };
 
-// helper functions
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
 module.exports = {
   // Enums
+  QuestionId,
   MentalHealthFormEnums,
   // Enum helper
   getCategoryArray,
