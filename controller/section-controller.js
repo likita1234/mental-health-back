@@ -29,8 +29,14 @@ exports.addSection = catchAsync(async (req, res, next) => {
   });
 });
 
-// Add questions to existing section
-
+// Update existing section
+exports.updateSection = catchAsync(async(req,res,next)=>{
+    // 1) Extract sectionId from query parameter
+    const sectionId = req.query.sectionId
+    // 2) Check if sectionId exists
+    const existingSection = await Section.findById(sectionId)
+    console.log(existingSection)
+})
 
 // extract all sections
 exports.getAllSections = catchAsync(async (req, res, next) => {
