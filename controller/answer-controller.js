@@ -2,13 +2,16 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 
 const APIFeatures = require('../utils/api-features');
+
 const Answer = require('../models/answer-model');
 const AssessmentForm = require('../models/assessment-form-model');
 const Question = require('../models/question-model');
+
 const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
 
 const { QuestionId, getCategoryArray } = require('../enums');
+const { createUniqueDateString } = require('../utils/date-formatter');
 
 // Submit Form answer
 exports.submitFormAnswer = catchAsync(async (req, res) => {
@@ -55,11 +58,13 @@ exports.submitFormAnswer = catchAsync(async (req, res) => {
     }
   }
 
+  // Create a unique identifier
+  const uniqueDateString = createUniqueDateString();
   // Create answers in bulk
   const createdAnswers = await Answer.insertMany(
     answers.map((answer) => ({
       formId,
-      userId: userId || null, // Set userId to null if not provided
+      userId: userId || uniqueDateString, // Set userId to uniqueDateString if not provided
       questionId: answer.questionId,
       answer: answer.answer,
     }))
