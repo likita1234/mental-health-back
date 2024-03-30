@@ -297,26 +297,6 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
         },
       },
     },
-    // Calculate the total number of answer field for each _id section inside answers array
-    // {
-    //   $addFields: {
-    //     totalSum: {
-    //       $reduce: {
-    //         input: '$answers',
-    //         initialValue: 0,
-    //         in: {
-    //           $add: ['$$value', '$$this.answer'], // Sum of answer field
-    //         },
-    //       },
-    //     },
-    //   },
-    // },
-    // // Remove the answers key and count the total number of answers
-    // {
-    //   $addFields: {
-    //     questionsCount: { $size: '$answers' }, // Count the total number of answers
-    //   },
-    // },
     { $unset: 'answers' }, // Remove the answers key
   ]);
 
