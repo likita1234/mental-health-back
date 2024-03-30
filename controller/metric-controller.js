@@ -131,9 +131,16 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   }
   // CASE 2: type =======> section
   else if (type === 'section') {
+    // In case of section, there are possibilites of requiring to use questionIds so we will fetch it here
+    // Extract all the questionIds in string format
+    const sectionQuestionIds =
+      await SectionController.fetchQuestionIdsBySectionId(sectionId);
     // CASE 2.1: chartType ===========> question-ratings-summation (ONLY USED FOR WHO-5 At the moment)
     if (chartType === 'question-ratings-summation') {
-      const data = await this.getQuestionRatingsSummation(formId, sectionId);
+      const data = await this.getQuestionRatingsSummation(
+        formId,
+        sectionQuestionIds
+      );
       // For percent calculation
       let totalCountSum = 0;
       data?.forEach((dataObj) => (totalCountSum += dataObj.count));
@@ -208,13 +215,9 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
   };
 };
 
-exports.getQuestionRatingsSummation = async (formId, sectionId) => {
+exports.getQuestionRatingsSummation = async (formId, sectionQuestionIds) => {
   // First fetch the section details
 
-  // Extract all the questionIds in string format
-  let sectionQuestionIds = await SectionController.fetchQuestionIdsBySectionId(
-    sectionId
-  );
   // Now aggregate
   return await Answer.aggregate([
     // Match the condition ======> formId
