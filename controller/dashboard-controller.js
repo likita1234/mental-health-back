@@ -79,13 +79,11 @@ exports.getDashboardData = catchAsync(async (req, res, next) => {
           questionDetails
         );
         metricsDataArr.push({
-          metric: {
-            _id,
-            title,
-            description,
-            chartType,
-            data: metricData,
-          },
+          _id,
+          title,
+          description,
+          chartType,
+          data: metricData,
         });
       }
     }
@@ -95,7 +93,7 @@ exports.getDashboardData = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      dashboard: metricsDataArr,
+      metrics: metricsDataArr,
     },
   });
 });
