@@ -77,11 +77,7 @@ app.use((req, res, next) => {
 // Add routes here
 // Root route for index.html file
 app.get('/', (req, res) => {
-  // res.render('index', {
-  //   host:req.headers.host,
-  // });
-
-  res.sendFile('index.html', { root: 'public' });
+  res.sendFile('index.html', { root: './' });
 });
 
 app.use('/api/v1/tours', tourRouter);
