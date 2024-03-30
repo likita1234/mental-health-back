@@ -15,10 +15,17 @@ router
 
 // =================> Question wise generic data analysis
 // =================> WHO-5 Summation Calculation data analysis
-router.get('/:metricId/data', metricController.getMetricData);
+router
+  .route('/:metricId/data')
+  .get(authController.validateToken, metricController.getMetricData);
 
 // =================> Section Wise :- All Questions Included analysis (Filter out open end)
-
+router
+  .route('/:formId/:sectionId/data')
+  .get(
+    authController.validateToken,
+    metricController.getTableAnalysisByFormAndSection
+  );
 // =================> All Sections Ratings Questions based :- Correlation analysis (Pearson) and Regression Analysis
 
 // ______________________________________________________

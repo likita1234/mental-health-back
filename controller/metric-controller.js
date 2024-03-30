@@ -184,6 +184,14 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   });
 });
 
+// Make table analysis of every sections by a particular formId
+exports.getTableAnalysisByFormAndSection = catchAsync(
+  async (req, res, next) => {
+    const { formId, sectionId } = req.params;
+    console.log(formId, sectionId);
+  }
+);
+
 // Helper to fetch metric details
 // ===========> Function to fetch question details
 exports.fetchMetricDetails = async (metricId) => {
