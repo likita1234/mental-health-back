@@ -134,20 +134,25 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
     // CASE 2.1: chartType ===========> question-ratings-summation
     if (chartType === 'question-ratings-summation') {
       const data = await this.getQuestionRatingsSummation(formId, sectionId);
+      // For percent calculation
+      let totalCountSum = 0;
+      data?.forEach((dataObj) => (totalCountSum += dataObj.count));
       let labels = [];
       let counts = [];
+      let percent = [];
       // let answers = [];
       for (let i = 0; i < data?.length; i++) {
         labels.push(data[i].label);
         counts.push(data[i].count);
-        // answers = answers.concat(data[i].answers);
+        percent.push(((data[i].count / totalCountSum) * 100).toFixed(2));
+        // answers = answers.concat(data[i].answers); //for temp
       }
       metricData = {
         data: {
           labels,
-          data: [{ label: title, count: counts }],
+          data: [{ label: title, count: counts, percent }],
         },
-        // answers,
+        // answers, // for temp
       };
     }
   }
