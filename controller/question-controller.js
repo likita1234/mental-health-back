@@ -88,7 +88,6 @@ exports.getQuestionDetails = catchAsync(async (req, res, next) => {
 // =======> Delete question by id
 exports.deleteQuestion = catchAsync(async (req, res, next) => {
   const question = await Question.findByIdAndDelete(req.params.id);
-  console.log(question);
   if (!question) {
     return next(new AppError('No question found with that ID', 404));
   }

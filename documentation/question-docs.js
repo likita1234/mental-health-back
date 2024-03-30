@@ -1,10 +1,9 @@
-
 /**
  * @swagger
  * tags:
  *   - name: Questions
  *     description:
- * 
+ *
  * /api/v1/question:
  *   get:
  *     summary: Get all questions
@@ -53,8 +52,8 @@
  *               status: success
  *               data:
  *                 question: {}
- * 
- * 
+ *
+ *
  * /api/v1/question/{id}:
  *   get:
  *     summary: Get Question Details
@@ -86,14 +85,42 @@
  *                   description: Question details
  *               example:
  *                 status: 'success'
- *                 data: 
- * 
+ *                 data:
+ *
  *       '404':
  *         description: No question found with the provided ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- 
+ *
+ *   delete:
+ *     summary: Delete Question by ID
+ *     description: Delete a specific question by ID
+ *     tags:
+ *       - Questions
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the Question to be deleted
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Question deleted successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               status: success
+ *               data: 'Question has been deleted'
+ *       '404':
+ *         description: No question found with the provided ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *
  */
-
