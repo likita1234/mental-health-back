@@ -18,7 +18,15 @@ const metricSchema = new mongoose.Schema({
   chartType: {
     type: String,
     required: [true, 'Select either of the options'],
-    enum: ['table', 'bar', 'pie', 'line', 'combo', 'ratings'],
+    enum: [
+      'table',
+      'bar',
+      'pie',
+      'line',
+      'combo',
+      'ratings',
+      'question-ratings-summation', //only supports type->section and question with ratings type
+    ],
     default: 'table',
   },
   author: {
