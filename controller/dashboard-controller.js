@@ -69,6 +69,54 @@ exports.getDashboardDetails = catchAsync(async (req, res, next) => {
   });
 });
 
+// Update dashboard details
+exports.updateDashboardDetails = catchAsync(async (req, res, next) => {
+  const { dashboardId } = req.params;
+
+  // Check if dashboardId is valid
+  const existingDashboard = await fetchDashboardDetailsById(dashboardId);
+  if (!existingDashboard) {
+    return next(new AppError('Invalid dashboard id in the request', 400));
+  }
+
+  // Update the dashboard properties
+  existingDashboard.title = req.body.title || existingDashboard.title;
+  existingDashboard.description =
+    req.body.description || existingDashboard.description;
+
+  // Update metrics if provided
+  if (req.body.metrics) {
+    const allMetrics = req.body.metrics?.map((metricObj) => metricObj.metricId);
+    const isValidMetrics = await validateMetricIds(allMetrics);
+    if (!isValidMetrics) {
+      return next(new AppError('Invalid metric Id in the request body', 400));
+    }
+    existingDashboard.metrics = req.body.metrics;
+  }
+
+  // Save the updated dashboard
+  await existingDashboard.save();
+
+  // Format and return the response
+  const { _id, title, description } = existingDashboard;
+  const metrics = existingDashboard.metrics?.map((metricObj) => {
+    return {
+      order: metricObj.order,
+      metricId: metricObj.metricId,
+    };
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      _id,
+      title,
+      description,
+      metrics,
+    },
+  });
+});
+
 // Helper to fetch metric details
 // ===========> Function to fetch question details
 const fetchDashboardDetailsById = async (id) => {

@@ -11,6 +11,7 @@ router
 
 router
   .route('/:dashboardId')
-  .get(authController.validateToken, dashboardController.getDashboardDetails);
+  .get(authController.validateToken, dashboardController.getDashboardDetails)
+  .patch(authController.validateToken, dashboardController.updateDashboardDetails);
 
 module.exports = router;
