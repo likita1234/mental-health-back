@@ -39,8 +39,8 @@
  *             title: "Sample Question"
  *             description: "This is a sample question"
  *             label: "Sample Label"
- *             type: "multiple_choice"
- *             options: [{ optionName: "Option 1", optionValue: "Value 1" }]
+ *             type: "radio"
+ *             options: [{ optionName: "Option 1", optionValue: 1 }]
  *     responses:
  *       200:
  *         description: Successful response
