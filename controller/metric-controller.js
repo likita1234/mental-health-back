@@ -62,28 +62,42 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   }
 
   // Now, extract the required information from metric details
-  const { _id, title, description, formId, questionId, chartType } =
-    existingMetric;
-
-  const existingQuestion = await QuestionController.fetchQuestionDetailsById(
-    questionId
-  );
-
-  if (!existingQuestion) {
-    return next(new AppError(`Question with ID ${questionId} not found`, 400));
-  }
-
-  // Now check what chart type it is expecting
-  // ========> First case :- Normal where it supports bar, pie, starts, table (simple table)
-  // ========> Second case:- NLP included where its only for text area type or text types
-  // At the moment, only first case is handled
-
-  const metricData = await this.getAggregatedData(
+  const {
+    _id,
+    title,
+    type,
+    description,
     formId,
     questionId,
-    existingQuestion
-  );
+    sectionId,
+    chartType,
+  } = existingMetric;
 
+  // Initiate an empty metric data
+  let metricData = {};
+
+  // Now check what chart type it is expecting
+  // CASE 1: type ==========> question
+  if (type === 'question') {
+    // If Type is question, fetch question details first
+    const existingQuestion = await QuestionController.fetchQuestionDetailsById(
+      questionId
+    );
+    if (!existingQuestion) {
+      return next(
+        new AppError(`Question with ID ${questionId} not found`, 400)
+      );
+    }
+    // CASE 1.1: chartType-> table, bar, pie, line
+    if (['table', 'bar', 'pie', 'line'].includes(chartType)) {
+      metricData = await this.getAggregatedData(
+        formId,
+        questionId,
+        existingQuestion
+      );
+    }
+    // ========> CASE 1.2:- NLP included where its only for text area type or text types
+  }
   res.status(200).json({
     status: 'success',
     data: {
