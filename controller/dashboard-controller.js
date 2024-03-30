@@ -5,10 +5,42 @@ const {
   fetchQuestionDetailsById,
 } = require('../controller/question-controller');
 
+const APIFeatures = require('../utils/api-features');
 const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
 
 const { validateMetricIds } = require('../validators/dashboard-validators');
+
+// =======> Extract all dashboards
+exports.getAllDashboards = catchAsync(async (req, res, next) => {
+  // Execute Query
+  const features = new APIFeatures(Dashboard.find({ active: true }), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const dashboards = await features.query;
+
+  // Create a new APIFeatures instance without pagination to count total documents
+  const countFeatures = new APIFeatures(
+    Dashboard.find({ active: true }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields();
+
+  // Count the total number of documents without pagination
+  const total = await Dashboard.countDocuments(countFeatures.query.getFilter());
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      dashboards,
+      total,
+    },
+  });
+});
 
 // Create an dashboard form
 exports.createDashboard = catchAsync(async (req, res, next) => {

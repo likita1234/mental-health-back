@@ -7,6 +7,7 @@ const router = express.Router();
 
 router
   .route('/')
+  .get(authController.validateToken, dashboardController.getAllDashboards)
   .post(authController.validateToken, dashboardController.createDashboard);
 
 router
