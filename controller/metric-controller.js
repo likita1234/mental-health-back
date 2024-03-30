@@ -103,7 +103,19 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   else if (type === 'section') {
     // CASE 2.1: chartType ===========> question-ratings-summation
     if (chartType === 'question-ratings-summation') {
-      metricData = await this.getQuestionRatingsSummation(formId, sectionId);
+      const data = await this.getQuestionRatingsSummation(formId, sectionId);
+
+      let labels = [];
+      let counts = [];
+      for (let i = 0; i < data?.length; i++) {
+        labels.push(data[i].label);
+        counts.push(data[i].count);
+      }
+    
+      metricData = {
+        labels,
+        data: [{ label: title, count: counts }],
+      };
     }
   }
   res.status(200).json({
