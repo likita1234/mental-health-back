@@ -13,9 +13,9 @@ const questionSchema = new mongoose.Schema({
     required: true,
     enum: ['text', 'number', 'dropdown', 'radio', 'checkbox', 'ratings'],
   },
-  author:{
+  author: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   createdDate: {
     type: Date,
@@ -31,6 +31,10 @@ const questionSchema = new mongoose.Schema({
       ref: 'QuestionOption',
     },
   ],
+  active: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 // ===========> Updated date updated everytime new save
@@ -57,6 +61,12 @@ questionSchema.pre('remove', async function (next) {
   //  Otherwise continue
   next();
 });
+
+// ==========> Post-remove hook to modify active to false
+questionSchema.methods.softDelete = async function (next) {
+  this.active = false;
+  await this.save();
+};
 
 const Question = mongoose.model('Question', questionSchema);
 

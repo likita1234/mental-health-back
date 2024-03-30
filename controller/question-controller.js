@@ -10,7 +10,7 @@ exports.getAllQuestions = catchAsync(async (req, res, next) => {
   // Execute Query
   // =========> Avoid populating on all questions, you can make them available during question details
   // Question.find().populate({ path: 'options', select: '-__v' })
-  const features = new APIFeatures(Question.find(), req.query)
+  const features = new APIFeatures(Question.find({ active: true }), req.query)
     .filter()
     .sort()
     .limitFields()
@@ -18,7 +18,10 @@ exports.getAllQuestions = catchAsync(async (req, res, next) => {
   const questions = await features.query;
 
   // Create a new APIFeatures instance without pagination to count total documents
-  const countFeatures = new APIFeatures(Question.find(), req.query)
+  const countFeatures = new APIFeatures(
+    Question.find({ active: true }),
+    req.query
+  )
     .filter()
     .sort()
     .limitFields();
@@ -29,7 +32,7 @@ exports.getAllQuestions = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      questions,                                                              
+      questions,
       total,
     },
   });
@@ -75,7 +78,10 @@ exports.addQuestion = catchAsync(async (req, res, next) => {
 // ======> Get question details
 exports.getQuestionDetails = catchAsync(async (req, res, next) => {
   // 1) Check if question exists
-  const existingQuestion = await Question.findById(req.params.id)
+  const existingQuestion = await Question.findOne({
+    _id: req.params.id,
+    active: true,
+  })
     .select('-__v')
     .populate({
       path: 'options',
@@ -105,7 +111,7 @@ exports.updateQuestion = catchAsync(async (req, res, next) => {
   const { title, description, type, options } = req.body;
 
   // 2) Check if the question exists
-  const question = await Question.findById(id);
+  const question = await Question.findOne({ _id: id, active: true });
   if (!question) {
     return new AppError(404, 'Question not found');
   }
@@ -158,10 +164,13 @@ exports.updateQuestion = catchAsync(async (req, res, next) => {
 
 // =======> Delete question by id
 exports.deleteQuestion = catchAsync(async (req, res, next) => {
-  const question = await Question.findByIdAndDelete(req.params.id);
+  const question = await Question.findOne({ _id: req.params.id, active: true });
   if (!question) {
     return next(new AppError('No question found with that ID', 404));
   }
+
+  // soft delete
+  await question.softDelete();
 
   res.status(204).json({
     status: 'success',
