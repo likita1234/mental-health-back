@@ -13,11 +13,11 @@ const swaggerSpec = require('./utils/swagger');
 const authRouter = require('./routes/auth-routes');
 const answerRouter = require('./routes/answer-routes');
 const assessmentFormRouter = require('./routes/assessment-form-routes');
+const dashboardRouter = require('./routes/dashboard-routes');
 const metricRouter = require('./routes/metric-routes');
 const questionRouter = require('./routes/question-routes');
 const sectionRouter = require('./routes/section-routes');
 const surveyRouter = require('./routes/survey-routes');
-const tourRouter = require('./routes/tour-routes');
 const userRouter = require('./routes/user-routes');
 
 const app = express();
@@ -86,15 +86,15 @@ app.get('/', (req, res) => {
   res.sendFile('index.html', { root: './' });
 });
 
-app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/answer', answerRouter);
+app.use('/api/v1/assessmentForm', assessmentFormRouter);
+app.use('/api/v1/dashboard', dashboardRouter);
 app.use('/api/v1/metric', metricRouter);
-app.use('/api/v1/user', userRouter);
 app.use('/api/v1/question', questionRouter);
 app.use('/api/v1/section', sectionRouter);
-app.use('/api/v1/assessmentForm', assessmentFormRouter);
 app.use('/api/v1/survey', surveyRouter);
+app.use('/api/v1/user', userRouter);
 
 // Swagger By Default in the begining
 app.use('/docs', SwaggerUI.serve, SwaggerUI.setup(swaggerSpec));
