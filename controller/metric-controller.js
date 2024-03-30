@@ -15,7 +15,8 @@ const {
 } = require('../validators/assessment-form-validators');
 
 // Resuable variables
-const unwantedTypes = ['ratings']; // To filter out ratings type from the sectionQuestionIds
+// To filter out unwanted type from the sectionQuestionIds
+const unwantedTypes = ['ratings', 'text', 'longtext'];
 
 // =======> Extract all metrics
 exports.getAllMetrics = catchAsync(async (req, res, next) => {
@@ -187,8 +188,8 @@ exports.getTableAnalysisByFormAndSection = catchAsync(
     const { formId, sectionId } = req.params;
     // Initiate an empty metric data
     let metricData = {};
-    console.log(formId, sectionId); // Extract all the questionIds in string format
-    const sectionQuestionIds =
+    // Extract all the questionIds
+    const { sectionDetails, sectionQuestionIds } =
       await SectionController.fetchQuestionIdsBySectionId(
         sectionId,
         unwantedTypes
@@ -200,7 +201,7 @@ exports.getTableAnalysisByFormAndSection = catchAsync(
     res.status(200).json({
       status: 'success',
       data: {
-        id: _id,
+        // sectionDetails,
         metricData,
       },
     });
@@ -478,8 +479,7 @@ const handleMultipleDataAggregation = async (formId, questionId, branches) => {
 
 // Handler for Section type Questions Table
 const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
-  console.log(sectionQuestionIds);
-  const data = await Answer.aggregate([
+  const aggregatedData = await Answer.aggregate([
     // Match the condition ======> formId
     {
       $match: {
@@ -526,8 +526,78 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
     },
   ]);
 
-  // console.log(data);
-  return data;
+  // Step 1: Inititate a questionOptions array and extract options for each questionId and push it in
+  const allQuestionOptions =
+    await QuestionController.fetchQuestionIdTitleAndOptions(sectionQuestionIds);
+
+  // Step 2: Convert the options from {questionId: "", questionOptions: []} into {questionId: [questionOptions]} format
+  const optionsMap = allQuestionOptions.reduce(
+    (map, { questionId, questionOptions }) => {
+      map[questionId] = {};
+      questionOptions.forEach(({ label, value }) => {
+        map[questionId][value] = label;
+      });
+      return map;
+    },
+    {}
+  );
+
+  // Step 3: Group the answers by questionId
+  const groupedData = aggregatedData.reduce((acc, obj) => {
+    obj.answers.forEach(({ questionId, answer }) => {
+      if (!acc[questionId]) {
+        acc[questionId] = [];
+      }
+      acc[questionId].push(answer);
+    });
+    return acc;
+  }, {});
+
+  // Step 3: Calculate sums of answers for each option
+  const result = Object.entries(groupedData).map(([questionId, answers]) => {
+    const answerCounts = answers.reduce((counts, answer) => {
+      counts[answer] = (counts[answer] || 0) + 1;
+      return counts;
+    }, {});
+
+    // Initialize sums for options 1 to 5
+    const sumAnswers = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+    Object.entries(sumAnswers).forEach(([option, _]) => {
+      sumAnswers[option] = answerCounts[option] || 0;
+    });
+
+    return { questionId, answers: [sumAnswers] };
+  });
+
+  // Use the mapping object to update answer keys to labels in the result
+  const mappedResult = result.map(({ questionId, answers }) => ({
+    questionId,
+    answers: answers.map((answer) => {
+      const mappedAnswer = {};
+      Object.entries(answer).forEach(([value, count]) => {
+        // Only map keys with non-zero counts
+        if (count !== 0) {
+          mappedAnswer[optionsMap[questionId][value]] = count;
+        }
+      });
+      return mappedAnswer;
+    }),
+  }));
+
+  // Replace questionId with questionTitle
+  const finalMappedResult = mappedResult.map(({ questionId, answers }) => {
+    // console.log(questionId);
+    const { questionTitle } = allQuestionOptions.find(
+      (question) => question.questionId == questionId
+    );
+    return {
+      questionTitle,
+      answers,
+    };
+  });
+
+  return finalMappedResult;
 };
 
 // Handler sorting orders by options

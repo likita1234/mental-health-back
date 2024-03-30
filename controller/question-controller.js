@@ -198,3 +198,43 @@ exports.fetchQuestionDetailsById = async (questionId) => {
     throw new Error('Error fetching question details');
   }
 };
+
+// ============> Helper to fetch question options only
+exports.fetchQuestionOptionsByQuestionId = async (questionId) => {
+  try {
+    const questionDetails = await this.fetchQuestionDetailsById(questionId);
+    const questionOptions = questionDetails?.options?.map((option) => {
+      return {
+        label: option?.title?.english,
+        value: option?.optionValue?.toString(), //Comparision will be in string later so
+      };
+    });
+    return {
+      questionDetails,
+      questionOptions,
+    };
+  } catch (error) {
+    throw new Error('Error fetching question details');
+  }
+};
+
+// ============> Given an array of question ids, generate id, title and options
+exports.fetchQuestionIdTitleAndOptions = async (questionIds) => {
+  try {
+    return await Promise.all(
+      questionIds.map(async (currQuestionId) => {
+        const { questionOptions, questionDetails } =
+          await this.fetchQuestionOptionsByQuestionId(currQuestionId);
+        const questionTitle = questionDetails?.title?.english;
+
+        return {
+          questionId: currQuestionId,
+          questionTitle,
+          questionOptions,
+        };
+      })
+    );
+  } catch (error) {
+    throw new Error('Error fetching all questions details');
+  }
+};
