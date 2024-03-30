@@ -7,4 +7,6 @@ const router = express.Router();
 
 router.route('/').get(answerController.getAllAnswers);
 
+router.get('/:category', answerController.aggregateGenderData);
+
 module.exports = router;
