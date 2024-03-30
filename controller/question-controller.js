@@ -70,6 +70,10 @@ exports.getQuestionDetails = catchAsync(async (req, res, next) => {
     .populate({
       path: 'options',
       select: '-__v',
+    })
+    .populate({
+      path: 'author',
+      select: 'name,surname,email,role',
     });
   // 2) If question doesn't exists then return 404
   if (!existingQuestion) {
