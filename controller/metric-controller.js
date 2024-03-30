@@ -53,7 +53,7 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   // Extract metricId from params
   const { metricId } = req.params;
   // Fetch metric details first
-  const existingMetric = await fetchMetricDetails(metricId);
+  const existingMetric = await this.fetchMetricDetails(metricId);
 
   if (!existingMetric) {
     return next(
@@ -77,7 +77,7 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   // ========> Second case:- NLP included where its only for text area type or text types
   // At the moment, only first case is handled
 
-  const metricData = await getAggregatedData(
+  const metricData = await this.getAggregatedData(
     formId,
     questionId,
     existingQuestion
