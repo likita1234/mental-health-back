@@ -11,12 +11,13 @@ const swaggerSpec = require('./utils/swagger');
 
 // Routes
 const authRouter = require('./routes/auth-routes');
-const userRouter = require('./routes/user-routes');
-const tourRouter = require('./routes/tour-routes');
+const answerRouter = require('./routes/answer-routes');
+const assessmentFormRouter = require('./routes/assessment-form-routes');
 const questionRouter = require('./routes/question-routes');
 const sectionRouter = require('./routes/section-routes');
-const assessmentFormRouter = require('./routes/assessment-form-routes');
-const surveyRouter = require('./routes/survey-routes')
+const surveyRouter = require('./routes/survey-routes');
+const tourRouter = require('./routes/tour-routes');
+const userRouter = require('./routes/user-routes');
 
 const app = express();
 
@@ -86,6 +87,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/answer', answerRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/question', questionRouter);
 app.use('/api/v1/section', sectionRouter);
