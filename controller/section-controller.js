@@ -58,7 +58,6 @@ exports.updateSection = catchAsync(async (req, res, next) => {
     return next(new AppError('Invalid question Id in the request body', 400));
   }
   // 3) Update the details extracted from the paramters
-  existingSection.name = req.body.name;
   existingSection.title = req.body.title;
   existingSection.description = req.body.description;
   existingSection.questions = req.body.questions;
@@ -110,10 +109,13 @@ exports.getAllSections = catchAsync(async (req, res, next) => {
 // extract section by id
 exports.getSectionDetails = catchAsync(async (req, res, next) => {
   // 1) Check if section with the id exists or not
-  const existingSection = await Section.findOne({ _id: req.params.id, active: true })
+  const existingSection = await Section.findOne({
+    _id: req.params.id,
+    active: true,
+  })
     .select('-__v')
     .populate({
-      path: 'questions',
+      path: 'questions.questionId',
       select: '-__v',
       populate: {
         path: 'options',
