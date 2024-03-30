@@ -1,19 +1,13 @@
 const mongoose = require('mongoose');
+const LanguageSchema = require('./language-schema');
+const AppError = require('../utils/app-errors');
 
 const questionSchema = new mongoose.Schema({
   title: {
-    type: String,
-    required: true,
+    type: LanguageSchema,
+    required: [true, 'Question title is mandatory'],
   },
-  description: {
-    type: String,
-    required: true,
-  },
-  label: {
-    type: String,
-    required: [true, 'Question label is mandatory'],
-    trim: true,
-  },
+  description: LanguageSchema,
   type: {
     type: String,
     required: true,

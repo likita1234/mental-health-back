@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-
+const LanguageSchema = require('./language-schema');
 const QuestionOptionSchema = mongoose.Schema(
   {
     optionName: {
-      type: String,
+      type: LanguageSchema,
       required: [true, 'Option name is mandatory'],
     },
     optionValue: {
