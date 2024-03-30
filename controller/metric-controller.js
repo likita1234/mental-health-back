@@ -62,7 +62,8 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   }
 
   // Now, extract the required information from metric details
-  const { title, description, formId, questionId, chartType } = existingMetric;
+  const { _id, title, description, formId, questionId, chartType } =
+    existingMetric;
 
   const existingQuestion = await QuestionController.fetchQuestionDetailsById(
     questionId
@@ -86,8 +87,10 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
+      id: _id,
       title,
       description,
+      chartType,
       metricData,
     },
   });
@@ -149,15 +152,15 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
     {
       $group: {
         _id: null,
-        counts: { $push: { label: '$label', count: '$count' } },
+        data: { $push: { label: '$label', count: '$count' } },
         totalCount: { $sum: '$count' },
       },
     }, // Project to calculate percentage
     {
       $project: {
-        counts: {
+        data: {
           $map: {
-            input: '$counts',
+            input: '$data',
             as: 'item',
             in: {
               label: '$$item.label',
@@ -182,7 +185,7 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
     },
   ]);
 
-  return responseData;
+  return responseData[0];
 };
 
 // Extract options details in formatted manner
