@@ -10,7 +10,7 @@ router
   .post(authController.validateToken, dashboardController.createDashboard);
 
 router
-  .route('/:dashboardId/data')
-  .get(authController.validateToken, dashboardController.getDashboardData);
+  .route('/:dashboardId')
+  .get(authController.validateToken, dashboardController.getDashboardDetails);
 
 module.exports = router;

@@ -39,8 +39,8 @@ exports.createDashboard = catchAsync(async (req, res, next) => {
   });
 });
 
-// Fetch dashboard data
-exports.getDashboardData = catchAsync(async (req, res, next) => {
+// Fetch dashboard details
+exports.getDashboardDetails = catchAsync(async (req, res, next) => {
   const { dashboardId } = req.params;
   // Check if dashboardId is valid or not
   const existingDashboard = await fetchDashboardDetailsById(dashboardId);
