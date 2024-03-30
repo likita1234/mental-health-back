@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -44,7 +45,6 @@ const userSchema = new mongoose.Schema({
       message: 'Password and Confirm Password field must match',
     },
   },
-  passwordChangedAt: Date,
   active: {
     type: Boolean,
     default: 1,
@@ -52,6 +52,9 @@ const userSchema = new mongoose.Schema({
   attachment: {
     type: String,
   },
+  passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 userSchema.methods.correctPassword = async function (
@@ -84,6 +87,17 @@ userSchema.pre('save', async function (next) {
   // dont save confirmPassword since its only needed for verification during signup not for save
   this.confirmPassword = undefined;
 });
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
+};
 
 const User = mongoose.model('User', userSchema);
 
