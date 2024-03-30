@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: ['true', 'User Password is required!'],
     minLength: [8, 'Password must be atleast 8 characters!'],
+    select: false,
   },
   confirmPassword: {
     type: String,
@@ -45,6 +46,13 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 });
+
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword,
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 //  Middlewares to generate fullname, encrypt password
 userSchema.pre('save', async function (next) {
