@@ -87,7 +87,10 @@ exports.getAllSections = catchAsync(async (req, res, next) => {
   const sections = await features.query;
 
   // Create a new APIFeatures instance without pagination to count total documents
-  const countFeatures = new APIFeatures(Section.find(), req.query)
+  const countFeatures = new APIFeatures(
+    Section.find({ active: true }),
+    req.query
+  )
     .filter()
     .sort()
     .limitFields();
@@ -108,7 +111,7 @@ exports.getAllSections = catchAsync(async (req, res, next) => {
 // extract section by id
 exports.getSectionDetails = catchAsync(async (req, res, next) => {
   // 1) Check if section with the id exists or not
-  const existingSection = await Section.findOne({ _id: id, active: true })
+  const existingSection = await Section.findOne({ _id: req.params.id, active: true })
     .select('-__v')
     .populate({
       path: 'questions',
