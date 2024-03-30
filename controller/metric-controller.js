@@ -530,7 +530,7 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
   const allQuestionOptions =
     await QuestionController.fetchQuestionIdTitleAndOptions(sectionQuestionIds);
 
-  // Step 2: Convert the options into questionId: [optionsArray] format
+  // Step 2: Convert the options from {questionId: "", questionOptions: []} into {questionId: [questionOptions]} format
   const optionsMap = allQuestionOptions.reduce(
     (map, { questionId, questionOptions }) => {
       map[questionId] = {};
@@ -553,18 +553,18 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
     return acc;
   }, {});
 
-  // Step 3: Calculate sums of answers for each rating
+  // Step 3: Calculate sums of answers for each option
   const result = Object.entries(groupedData).map(([questionId, answers]) => {
     const answerCounts = answers.reduce((counts, answer) => {
       counts[answer] = (counts[answer] || 0) + 1;
       return counts;
     }, {});
 
-    // Initialize sums for ratings 1 to 5
+    // Initialize sums for options 1 to 5
     const sumAnswers = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
-    Object.entries(sumAnswers).forEach(([rating, _]) => {
-      sumAnswers[rating] = answerCounts[rating] || 0;
+    Object.entries(sumAnswers).forEach(([option, _]) => {
+      sumAnswers[option] = answerCounts[option] || 0;
     });
 
     return { questionId, answers: [sumAnswers] };
@@ -587,7 +587,7 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
 
   // Replace questionId with questionTitle
   const finalMappedResult = mappedResult.map(({ questionId, answers }) => {
-    console.log(questionId);
+    // console.log(questionId);
     const { questionTitle } = allQuestionOptions.find(
       (question) => question.questionId == questionId
     );
