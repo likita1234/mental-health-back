@@ -14,9 +14,6 @@ const server = app.listen(port, () => {
   console.log(`App running on server:: localhost:${port}...`);
 });
 
-app.get('/', () => {
-  console.log('Welcome to my server');
-});
 
 process.on('uncaughtException', (err) => {
   console.log(err.name, err.message);
