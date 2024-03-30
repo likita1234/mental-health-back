@@ -113,7 +113,7 @@ exports.fetchMetricDetails = async (metricId) => {
 exports.getAggregatedData = async (formId, questionId, questionDetails) => {
   // Extract all the options from the questionDetails first
   const optionsMappings = getOptionsDetails(questionDetails);
-
+  const defaultGroupingLabel = 'Group by ' + questionDetails?.title?.english;
   // Construct branches
   const branches = optionsMappings?.map((mapping) => ({
     case: { $eq: ['$_id', mapping.value] },
@@ -184,8 +184,7 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
       },
     },
   ]);
-
-  return responseData[0];
+  return { ...responseData[0], labels: [defaultGroupingLabel] };
 };
 
 // Extract options details in formatted manner
