@@ -159,10 +159,9 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
     then: mapping.label,
   }));
 
-  const responseData = !isCheckboxType
-    ? await handleSingleDataAggregation(formId, questionId, branches)
-    : [];
-
+  const responseData = isCheckboxType
+    ? await handleMultipleDataAggregation(formId, questionId, branches)
+    : await handleSingleDataAggregation(formId, questionId, branches);
   return { ...responseData[0], labels: [defaultGroupingLabel] };
 };
 
@@ -337,12 +336,88 @@ const handleSingleDataAggregation = async (formId, questionId, branches) => {
   ]);
 };
 
+const handleMultipleDataAggregation = async (formId, questionId, branches) => {
+  return await Answer.aggregate([
+    // Match only the documents where the answer is within the valid range (1-4)
+    {
+      $match: {
+        formId: mongoose.Types.ObjectId(formId),
+        questionId: mongoose.Types.ObjectId(questionId),
+      },
+    },
+    // Split the answer array and treat each value as a separate document
+    {
+      $addFields: {
+        answers: { $split: ['$answer', ', '] }, // Assuming values are separated by ', '
+      },
+    },
+    {
+      $unwind: '$answers',
+    },
+    // Group the documents by the answer value and count occurrences
+    {
+      $group: {
+        _id: '$answers',
+        count: { $sum: 1 },
+      },
+    },
+    // Project to rename the answer values with their corresponding gender labels
+    {
+      $project: {
+        label: {
+          $switch: {
+            branches,
+            default: 'Unknown',
+          },
+        },
+        count: 1,
+        _id: 0,
+      },
+    },
+    // Group again to calculate the total count
+    {
+      $group: {
+        _id: null,
+        data: { $push: { label: '$label', count: '$count' } },
+        totalCount: { $sum: '$count' },
+      },
+    }, // Project to calculate percentage
+    {
+      $project: {
+        data: {
+          $map: {
+            input: '$data',
+            as: 'item',
+            in: {
+              label: '$$item.label',
+              count: '$$item.count',
+              percent: {
+                $round: [
+                  {
+                    $multiply: [
+                      { $divide: ['$$item.count', '$totalCount'] },
+                      100,
+                    ],
+                  },
+                  2,
+                ],
+              },
+            },
+          },
+        },
+        totalCount: 1,
+        _id: 0,
+      },
+    },
+  ]);
+};
+
 // Extract options details in formatted manner
 const getOptionsDetails = (questionDetails) => {
   return questionDetails?.options?.map((option) => {
     return {
       label: option?.title?.english,
-      value: option?.optionValue.toString(),
+      value: option?.optionValue?.toString(),
     };
   });
 };
