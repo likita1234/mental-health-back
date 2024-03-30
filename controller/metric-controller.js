@@ -197,11 +197,15 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
     case: { $eq: ['$_id', mapping.value] },
     then: mapping.label,
   }));
-
-  const responseData = isCheckboxType
+  const response = isCheckboxType
     ? await handleMultipleDataAggregation(formId, questionId, branches)
     : await handleSingleDataAggregation(formId, questionId, branches);
-  return { ...responseData[0], labels: [defaultGroupingLabel] };
+  const sortedData = sortArrayByOrder(response[0].data, optionsMappings);
+  return {
+    totalCount: response[0].totalCount,
+    data: sortedData,
+    labels: [defaultGroupingLabel],
+  };
 };
 
 exports.getQuestionRatingsSummation = async (formId, sectionId) => {
@@ -447,6 +451,21 @@ const handleMultipleDataAggregation = async (formId, questionId, branches) => {
       },
     },
   ]);
+};
+
+// Handler sorting orders by options
+const sortArrayByOrder = (originalArray, orderArray) => {
+  // Create a map from label to position in orderArray
+  const labelToPosition = new Map(
+    orderArray.map(({ label }, index) => [label, index])
+  );
+
+  // Sort originalArray based on the position of labels in orderArray
+  return originalArray.slice().sort((a, b) => {
+    const positionA = labelToPosition.get(a.label);
+    const positionB = labelToPosition.get(b.label);
+    return positionA - positionB;
+  });
 };
 
 // Extract options details in formatted manner
