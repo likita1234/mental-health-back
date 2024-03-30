@@ -49,10 +49,9 @@ exports.addMetric = catchAsync(async (req, res, next) => {
 // Make data analysis on the basis of individual question representing a particular form
 // questionId, formId and chartType mandatory
 // passing id as well so as to utilize this function from somewhere else
-exports.getMetricData = catchAsync(async (req, res, next, id) => {
+exports.getMetricData = catchAsync(async (req, res, next) => {
   // Extract metricId from params
-  const { metricId } = req.params || id;
-
+  const { metricId } = req.params;
   // Fetch metric details first
   const existingMetric = await fetchMetricDetails(metricId);
 
@@ -96,7 +95,7 @@ exports.getMetricData = catchAsync(async (req, res, next, id) => {
 
 // Helper to fetch metric details
 // ===========> Function to fetch question details
-const fetchMetricDetails = async (metricId) => {
+exports.fetchMetricDetails = async (metricId) => {
   try {
     return await Metric.findOne({
       _id: metricId,
@@ -108,7 +107,7 @@ const fetchMetricDetails = async (metricId) => {
 };
 
 // Helpers for aggregation of data
-const getAggregatedData = async (formId, questionId, questionDetails) => {
+exports.getAggregatedData = async (formId, questionId, questionDetails) => {
   // Extract all the options from the questionDetails first
   const optionsMappings = getOptionsDetails(questionDetails);
 
