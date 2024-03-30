@@ -92,7 +92,6 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
       new AppError(`Metric details with ID ${metricId} not found`, 400)
     );
   }
-  console.log('Metric details', existingMetric);
   // Now, extract the required information from metric details
   const {
     _id,
@@ -121,14 +120,12 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
       );
     }
     // CASE 1.1: chartType-> table, bar, pie, line
-    if (['table', 'bar', 'pie', 'line'].includes(chartType)) {
+    if (['table', 'bar', 'pie', 'line', 'ratings'].includes(chartType)) {
       metricData = await this.getAggregatedData(
         formId,
         questionId,
         existingQuestion
       );
-    } else if (chartType === 'ratings') {
-      console.log(existingQuestion);
     }
     // ========> CASE 1.2:- NLP included where its only for text area type or text types
   }
@@ -184,7 +181,12 @@ exports.fetchMetricDetails = async (metricId) => {
 exports.getAggregatedData = async (formId, questionId, questionDetails) => {
   // Extract all the options from the questionDetails first
   const isCheckboxType = questionDetails?.type === 'checkbox';
-  const optionsMappings = getOptionsDetails(questionDetails);
+  const isRatingsType = questionDetails?.type === 'ratings';
+  // Unique scenario for question type of ratings and metric chartType is also ratings (options will be same as values)
+  const optionsMappings = isRatingsType
+    ? getRatingsOptionsDetails()
+    : getOptionsDetails(questionDetails);
+  console.log(optionsMappings);
   const defaultGroupingLabel = 'Group by ' + questionDetails?.title?.english;
   // Construct branches
   const branches = optionsMappings?.map((mapping) => ({
@@ -451,6 +453,22 @@ const getOptionsDetails = (questionDetails) => {
     return {
       label: option?.title?.english,
       value: option?.optionValue?.toString(),
+    };
+  });
+};
+
+// Extract options labelings for ratings
+const getRatingsOptionsDetails = () => {
+  return [
+    { label: 'Very Poor', value: 1 },
+    { label: 'Poor', value: 2 },
+    { label: 'Neutral', value: 3 },
+    { label: 'Good', value: 4 },
+    { label: 'Very Good', value: 5 },
+  ]?.map((obj) => {
+    return {
+      ...obj,
+      value: obj.value.toString(),
     };
   });
 };
