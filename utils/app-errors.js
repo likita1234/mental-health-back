@@ -3,11 +3,12 @@ const { errors } = require('./errors');
 class AppError extends Error {
   constructor(message, statusCode) {
     super(message);
-    console.log(`${statusCode}`.startsWith('4'));
+
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('4')
       ? errors.FAILED
       : errors.ERROR;
+
     this.isOperational = true;
 
     Error.captureStackTrace(this, this.constructor);
