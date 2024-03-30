@@ -14,11 +14,7 @@ const answerSchema = new mongoose.Schema({
     ref: 'Question',
   },
   answer: String,
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    default: null,
-  },
+  userId: String, // We will set it as string because, it could be null and random date string as well
   createdDate: {
     type: Date,
     default: Date.now,
