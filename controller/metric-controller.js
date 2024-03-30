@@ -202,9 +202,9 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
 
 exports.getQuestionRatingsSummation = async (formId, sectionId) => {
   // First fetch the section details
-  const sectionDetails = await SectionController.fetchSectionDetailsById(
-    sectionId
-  );
+  // const sectionDetails = await SectionController.fetchSectionDetailsById(
+  //   sectionId
+  // );
   // Extract all the questionIds in mongoose.Types.ObjectId format
   // const allQuestionIds = sectionDetails?.questions.map((question) => {
   //   return mongoose.Types.ObjectId(question._id);
