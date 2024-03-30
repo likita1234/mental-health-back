@@ -198,3 +198,22 @@ exports.fetchQuestionDetailsById = async (questionId) => {
     throw new Error('Error fetching question details');
   }
 };
+
+// ============> Helper to fetch question options only
+exports.fetchQuestionOptionsByQuestionId = async (questionId) => {
+  try {
+    const questionDetails = await this.fetchQuestionDetailsById(questionId);
+    const questionOptions = questionDetails?.options?.map((option) => {
+      return {
+        label: option?.title?.english,
+        value: option?.optionValue?.toString(), //Comparision will be in string later so
+      };
+    });
+    return {
+      questionDetails,
+      questionOptions,
+    };
+  } catch (error) {
+    throw new Error('Error fetching question details');
+  }
+};
