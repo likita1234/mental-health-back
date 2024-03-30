@@ -1,7 +1,30 @@
 const Question = require('../models/question-model');
 const QuestionOption = require('../models/question-option-model');
+const APIFeatures = require('../utils/api-features');
 // const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
+
+// =======> Extract all questions
+exports.getAllQuestions = catchAsync(async (req, res, next) => {
+  // Execute Query
+  const features = new APIFeatures(
+    Question.find().populate({ path: 'options', select: '-__v' }),
+    req.query,
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const questions = await features.query;
+
+  res.status(200).json({
+    status: 'success',
+    total: questions.length,
+    data: {
+      questions,
+    },
+  });
+});
 
 // =======> Add Question
 exports.addQuestion = catchAsync(async (req, res, next) => {

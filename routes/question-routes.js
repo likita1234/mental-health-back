@@ -5,10 +5,16 @@ const questionController = require('../controller/question-controller');
 
 const router = express.Router();
 
+router.get(
+  '/',
+  authController.validateToken,
+  questionController.getAllQuestions,
+);
+
 router.post(
   '/add',
   authController.validateToken,
-//   authController.restrictTo('admin', 'superadmin'),
+  //   authController.restrictTo('admin', 'superadmin'),
   questionController.addQuestion,
 );
 
