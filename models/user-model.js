@@ -14,10 +14,6 @@ const userSchema = new mongoose.Schema({
     // required: ['true', 'User surname is required!'],
     trim: true,
   },
-  fullname: {
-    type: String,
-    trim: true,
-  },
   email: {
     type: String,
     unique: true,
@@ -58,9 +54,8 @@ const userSchema = new mongoose.Schema({
   passwordResetExpires: Date,
 });
 
-//  Middlewares to generate fullname, encrypt password
+//  Middlewares for password encryption
 userSchema.pre('save', async function (next) {
-  this.fullname = this.name + ' ' + this.surname;
   //   Only run this function if password wasn't actually modified
   if (!this.isModified('password')) return next();
 

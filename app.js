@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 
 const authRouter = require('./routes/auth-routes');
+const userRouter = require('./routes/user-routes');
 const tourRouter = require('./routes/tour-routes');
 
 const app = express();
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 // Add routes here
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/user', userRouter);
 
 // handle all the urls that couldn't be handled
 app.all('*', (req, res, next) => {
