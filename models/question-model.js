@@ -43,10 +43,12 @@ questionSchema.pre('save', function (next) {
   next();
 });
 
-// ===========> Pre-remove hook to check if the question is used in any Sections
-questionSchema.pre('remove', async function (next) {
+// ==========>  modify active to false
+questionSchema.methods.softDelete = async function () {
+  // check if the question is used in any Sections
   const sectionsWithQuestion = await mongoose.model('Section').find({
-    questions: this._id,
+    'questions.questionId': this._id,
+    active: true,
   });
 
   // Check if there is any sections that exists, if yes then throw error
@@ -55,15 +57,9 @@ questionSchema.pre('remove', async function (next) {
     const errorMessage = `Unable to delete the question because it is being used by following sections: ${sectionNames.join(
       ', '
     )}`;
-
-    return next(new AppError(errorMessage, 400));
+    throw new AppError(errorMessage, 400);
   }
-  //  Otherwise continue
-  next();
-});
-
-// ==========> Post-remove hook to modify active to false
-questionSchema.methods.softDelete = async function (next) {
+  //  Otherwise continue soft delete
   this.active = false;
   await this.save();
 };
