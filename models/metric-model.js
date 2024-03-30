@@ -15,6 +15,12 @@ const metricSchema = new mongoose.Schema({
     enum: ['question', 'section'],
     default: 'question',
   },
+  chartType: {
+    type: String,
+    required: [true, 'Select either of the options'],
+    enum: ['table', 'bar', 'pie', 'line', 'combo', 'ratings'],
+    default: 'table',
+  },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
