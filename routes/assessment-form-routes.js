@@ -12,7 +12,7 @@ router
 
 router
   .route('/:id')
-  .get(authController.validateToken, formController.getAssessmentFormDetails)
+  .get(formController.getAssessmentFormDetails)
   .patch(authController.validateToken, formController.updateAssessmentForm)
   .delete(authController.validateToken, formController.deleteAssessmentForm);
 
