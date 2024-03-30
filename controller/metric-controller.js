@@ -241,9 +241,12 @@ const getAggregatedData = async (formId, questionId, questionDetails) => {
   const response = isCheckboxType
     ? await handleMultipleDataAggregation(formId, questionId, branches)
     : await handleSingleDataAggregation(formId, questionId, branches);
-  const sortedData = sortArrayByOrder(response[0].data, optionsMappings);
+  let sortedData = null;
+  if (response) {
+    sortedData = sortArrayByOrder(response[0]?.data, optionsMappings);
+  }
   return {
-    totalCount: response[0].totalCount,
+    totalCount: response[0]?.totalCount ?? null,
     data: sortedData,
     labels: [defaultGroupingLabel],
   };
@@ -535,7 +538,7 @@ const sortArrayByOrder = (originalArray, orderArray) => {
   );
 
   // Sort originalArray based on the position of labels in orderArray
-  return originalArray.slice().sort((a, b) => {
+  return originalArray?.slice()?.sort((a, b) => {
     const positionA = labelToPosition.get(a.label);
     const positionB = labelToPosition.get(b.label);
     return positionA - positionB;
