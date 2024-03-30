@@ -24,7 +24,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.updateUserDetails = catchAsync(async (req, res, next) => {
+exports.updateLoggedUserDetails = catchAsync(async (req, res, next) => {
   // fetch User details
   const { name, surname, email } = req.body;
   // 1) Create error if user POSTS password details
@@ -50,5 +50,19 @@ exports.updateUserDetails = catchAsync(async (req, res, next) => {
   res.status(200).json({
     message: 'User details updated successfully',
     user: updatedUser,
+  });
+});
+
+// need to refactor this a bit
+// currently only the logged user can delete him/her self
+// need to be able to delete other users who can do so, like admins, superadmin
+exports.deleteUser = catchAsync(async (req, res, next) => {
+  // 1) Find user exists and delete-> set active as false
+
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
   });
 });

@@ -65,12 +65,19 @@ userSchema.pre('save', async function (next) {
   this.confirmPassword = undefined;
 });
 
+// Updates password changed date everytime there is a changes in password
 userSchema.pre('save', function (next) {
   // If there is no password modication or this is a new document
   if (!this.isModified('password') || this.isNew) return next();
   // Else set the date such that the password has been changed
   // password changes deducted with 1s such that the token created time is considered
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+// Filter out the users based on the active false
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
   next();
 });
 

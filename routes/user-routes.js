@@ -9,7 +9,14 @@ router.get('/', authController.validateToken, userController.getAllUsers);
 router.patch(
   '/update',
   authController.validateToken,
-  userController.updateUserDetails,
+  userController.updateLoggedUserDetails,
+);
+
+router.delete(
+  '/:userId',
+  authController.validateToken,
+  authController.restrictTo('admin', 'superadmin'),
+  userController.deleteUser,
 );
 
 module.exports = router;
