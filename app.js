@@ -16,6 +16,7 @@ const tourRouter = require('./routes/tour-routes');
 const questionRouter = require('./routes/question-routes');
 const sectionRouter = require('./routes/section-routes');
 const assessmentFormRouter = require('./routes/assessment-form-routes');
+const surveyRouter = require('./routes/survey-routes')
 
 const app = express();
 
@@ -89,6 +90,7 @@ app.use('/api/v1/user', userRouter);
 app.use('/api/v1/question', questionRouter);
 app.use('/api/v1/section', sectionRouter);
 app.use('/api/v1/assessmentForm', assessmentFormRouter);
+app.use('/api/v1/survey', surveyRouter);
 
 // Swagger By Default in the begining
 app.use('/docs', SwaggerUI.serve, SwaggerUI.setup(swaggerSpec));
