@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema({
       message: 'Password and Confirm Password field must match',
     },
   },
+  passwordChangedAt: Date,
   active: {
     type: Boolean,
     default: 1,
@@ -52,6 +53,18 @@ userSchema.methods.correctPassword = async function (
   userPassword,
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const passwordChangedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+    );
+    // console.log(this.passwordChangedAt, JWTTimestamp);
+    // if the time is greater, it means that the password was changed
+    return JWTTimestamp < passwordChangedTimestamp;
+  }
+  return false;
 };
 
 //  Middlewares to generate fullname, encrypt password

@@ -46,6 +46,12 @@ const handleValidationErrorDB = (error) => {
   return AppError(message, 400);
 };
 
+const handleJWTError = () =>
+  new AppError('Invalid token. Please re login', 401);
+
+const handleJWTExpired = () =>
+  new AppError('Your token has expired. Please re login to continue!', 401);
+
 // global error handling
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
@@ -62,7 +68,8 @@ module.exports = (err, req, res, next) => {
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
     if (error.name === 'ValidationError')
       error = handleValidationErrorDB(error);
-
+    if (error.name === 'JsonwebTokenError') error = handleJWTError();
+    if (error.name === 'TokenExpiredError') error = handleJWTExpired();
     sendErrorProd(error, res);
   }
 };
