@@ -133,8 +133,12 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   else if (type === 'section') {
     // In case of section, there are possibilites of requiring to use questionIds so we will fetch it here
     // Extract all the questionIds in string format
+    const unwantedTypes = ['ratings']; // To filter out ratings type from the sectionQuestionIds
     const sectionQuestionIds =
-      await SectionController.fetchQuestionIdsBySectionId(sectionId);
+      await SectionController.fetchQuestionIdsBySectionId(
+        sectionId,
+        unwantedTypes
+      );
     // CASE 2.1: chartType ===========> question-ratings-summation (ONLY USED FOR WHO-5 At the moment)
     if (chartType === 'question-ratings-summation') {
       const data = await getQuestionRatingsSummation(
@@ -161,6 +165,11 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
         },
         // answers, // for temp
       };
+    } else if (chartType === 'questions-table') {
+      metricData = await handleSectionTablesByQuestions(
+        formId,
+        sectionQuestionIds
+      );
     }
   }
   res.status(200).json({
@@ -218,9 +227,6 @@ const getAggregatedData = async (formId, questionId, questionDetails) => {
 };
 
 const getQuestionRatingsSummation = async (formId, sectionQuestionIds) => {
-  // First fetch the section details
-
-  // Now aggregate
   return await Answer.aggregate([
     // Match the condition ======> formId
     {
@@ -442,6 +448,60 @@ const handleMultipleDataAggregation = async (formId, questionId, branches) => {
       },
     },
   ]);
+};
+
+// Handler for Section type Questions Table
+const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
+  console.log(sectionQuestionIds);
+  const data = await Answer.aggregate([
+    // Match the condition ======> formId
+    {
+      $match: {
+        formId: mongoose.Types.ObjectId(formId),
+      },
+    },
+    // Project stage to push entire documents into an array
+    {
+      $group: {
+        _id: '$userId',
+        answers: { $push: '$$ROOT' }, // Push entire documents into the answers array
+      },
+    },
+    // Filter answers where answer.questionId is in sectionQuestionIds array
+    {
+      $project: {
+        _id: 1,
+        answers: {
+          $filter: {
+            input: '$answers',
+            as: 'answer',
+            cond: {
+              $in: ['$$answer.questionId', sectionQuestionIds],
+            },
+          },
+        },
+      },
+    },
+    // Project stage to keep only questionId and answer fields inside each object of the answers array
+    {
+      $project: {
+        _id: 1,
+        answers: {
+          $map: {
+            input: '$answers',
+            as: 'answer',
+            in: {
+              questionId: '$$answer.questionId',
+              answer: '$$answer.answer',
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  // console.log(data);
+  return data;
 };
 
 // Handler sorting orders by options
