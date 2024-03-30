@@ -7,6 +7,8 @@ const Question = require('../models/question-model');
 const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
 
+const { getCategoryArray } = require('../enums');
+
 // Submit Form answer
 exports.submitFormAnswer = catchAsync(async (req, res) => {
   const { formId, userId, answers } = req.body;
@@ -89,6 +91,61 @@ exports.getAllAnswers = catchAsync(async (req, res, next) => {
     data: {
       answers,
       total: answers.length,
+    },
+  });
+});
+
+// Aggregate the gender information and display the data
+// At the moment, there is a limitation on its support only on mental health assessment form
+// This function is useful for question type radio at the moment
+exports.aggregateGenderData = catchAsync(async (req, res, next) => {
+  // Extract the category
+  const category = req.params.category;
+  // Now get the arrays for data category wise
+  const mappingsData = getCategoryArray(category);
+
+  // Construct $switch branches dynamically based on mappingsData
+  const branches = mappingsData.map((mapping) => ({
+    case: { $eq: ['$_id', mapping.id] },
+    then: mapping.label,
+  }));
+
+  // Execute Query
+  const responseData = await Answer.aggregate([
+    // Match only the documents where the answer is within the valid range (1-4)
+    {
+      $match: {
+        formId: mongoose.Types.ObjectId('65e4c1b053ac8d0d48982869'),
+        questionId: mongoose.Types.ObjectId('65d3a8780306fa10a0e60964'),
+      },
+    },
+    // Group the documents by the answer value and count occurrences
+    {
+      $group: {
+        _id: '$answer',
+        count: { $sum: 1 },
+      },
+    },
+    // Project to rename the answer values with their corresponding gender labels
+    {
+      $project: {
+        label: {
+          $switch: {
+            branches, //Already setup above
+            default: 'Unknown',
+          },
+        },
+        count: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      data: responseData,
+      total: responseData.length,
     },
   });
 });
