@@ -113,8 +113,10 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
         answers = answers.concat(data[i].answers);
       }
       metricData = {
-        labels,
-        data: [{ label: title, count: counts }],
+        data: {
+          labels,
+          data: [{ label: title, count: counts }],
+        },
         answers,
       };
     }
@@ -313,7 +315,7 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
       $group: {
         _id: '$WHOIndexTotalSum',
         count: { $sum: 1 },
-        answers: { $first: '$answers' },
+        answers: { $addToSet: '$answers' },
       },
     },
     // Sort by _id in ascending order
