@@ -25,6 +25,11 @@ const metricSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  formId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'AssessmentForm',
+    required: [true, 'Must specify particular assessment form'],
+  },
   questionId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Question',
