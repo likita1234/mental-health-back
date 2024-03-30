@@ -14,6 +14,37 @@ const {
   validateSectionIds,
 } = require('../validators/assessment-form-validators');
 
+// =======> Extract all metrics
+exports.getAllMetrics = catchAsync(async (req, res, next) => {
+  // Execute Query
+  const features = new APIFeatures(Metric.find({ active: true }), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const metrics = await features.query;
+
+  // Create a new APIFeatures instance without pagination to count total documents
+  const countFeatures = new APIFeatures(
+    Metric.find({ active: true }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields();
+
+  // Count the total number of documents without pagination
+  const total = await Metric.countDocuments(countFeatures.query.getFilter());
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      metrics,
+      total,
+    },
+  });
+});
+
 // Create a new metric
 exports.addMetric = catchAsync(async (req, res, next) => {
   // Fetch the type of metric
@@ -61,7 +92,7 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
       new AppError(`Metric details with ID ${metricId} not found`, 400)
     );
   }
-
+  console.log('Metric details', existingMetric);
   // Now, extract the required information from metric details
   const {
     _id,
@@ -96,6 +127,8 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
         questionId,
         existingQuestion
       );
+    } else if (chartType === 'ratings') {
+      console.log(existingQuestion);
     }
     // ========> CASE 1.2:- NLP included where its only for text area type or text types
   }
