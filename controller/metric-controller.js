@@ -210,14 +210,15 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
 
 exports.getQuestionRatingsSummation = async (formId, sectionId) => {
   // First fetch the section details
-  // const sectionDetails = await SectionController.fetchSectionDetailsById(
-  //   sectionId
-  // );
-  // Extract all the questionIds in mongoose.Types.ObjectId format
-  // const allQuestionIds = sectionDetails?.questions.map((question) => {
-  //   return mongoose.Types.ObjectId(question._id);
-  //   // return question._id;
-  // });
+  const sectionDetails = await SectionController.fetchSectionDetailsById(
+    sectionId
+  );
+
+  // Extract all the questionIds in string format
+  let sectionQuestionIds = sectionDetails?.questions?.map((questionObj) => {
+    return questionObj?.questionId._id;
+  });
+
   // Your aggregation pipeline
   return await Answer.aggregate([
     // Match the condition ======> formId
@@ -241,18 +242,7 @@ exports.getQuestionRatingsSummation = async (formId, sectionId) => {
             input: '$answers',
             as: 'answer',
             cond: {
-              $in: [
-                '$$answer.questionId',
-                // allQuestionIds,
-                // allQuestionIds.map((id) => mongoose.Types.ObjectId(id)),
-                [
-                  mongoose.Types.ObjectId('65d5ee0a9180ec34b4a0b845'),
-                  mongoose.Types.ObjectId('65d5ef029180ec34b4a0b8ac'),
-                  mongoose.Types.ObjectId('65d5efdd9180ec34b4a0b8dc'),
-                  mongoose.Types.ObjectId('65d5f0cc9180ec34b4a0b90e'),
-                  mongoose.Types.ObjectId('65d5f1709180ec34b4a0b942'),
-                ],
-              ],
+              $in: ['$$answer.questionId', sectionQuestionIds],
             },
           },
         },
