@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const authRouter = require('./routes/auth-routes');
 const userRouter = require('./routes/user-routes');
@@ -11,13 +12,17 @@ const app = express();
 const globalErrorHandler = require('./controller/error-controller');
 const AppError = require('./utils/app-errors');
 
-// Middleware morgan has been added as it is simply a HTTP request logger middleware for node.js
 // 1) MIDDLEWARES
+// Security HTTP headers
+app.use(helmet());
+
+// Development logging
+// Middleware morgan has been added as it is simply a HTTP request logger middleware for node.js
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Middleware for Rate Limiting
+// Middleware for Limit requests from the same API
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
@@ -25,10 +30,13 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-app.use(express.json());
+// Body parser, reading data from body into req.body
+app.use(express.json({ limit: '10kb' }));
+
 // This will serve your public folder where you can put your static files and use throughout the application
 app.use(express.static(`${__dirname}/public`));
 
+// Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
