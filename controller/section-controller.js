@@ -100,7 +100,6 @@ exports.getAllSections = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    total: sections.length,
     data: {
       sections,
       total,
