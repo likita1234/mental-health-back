@@ -18,8 +18,11 @@ const sectionSchema = new mongoose.Schema({
   },
   questions: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Question',
+      order: Number,
+      questionId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Question',
+      },
     },
   ],
 });
@@ -49,6 +52,12 @@ sectionSchema.pre('remove', async function (next) {
   //  Otherwise continue
   next();
 });
+
+// ==========> Post-remove hook to modify active to false
+sectionSchema.methods.softDelete = async function (next) {
+  this.active = false;
+  await this.save();
+};
 
 const Section = mongoose.model('Section', sectionSchema);
 
