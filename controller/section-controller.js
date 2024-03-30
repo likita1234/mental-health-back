@@ -166,7 +166,10 @@ exports.fetchSectionDetailsById = async (sectionId) => {
 exports.fetchQuestionIdsBySectionId = async (sectionId, removeTypes = []) => {
   const sectionDetails = await this.fetchSectionDetailsById(sectionId);
   // Now return all the question ids
-  return sectionDetails?.questions
-    ?.filter((questionObj) => !removeTypes.includes(questionObj.questionId?.type))
+  const sectionQuestionIds = sectionDetails?.questions
+    ?.filter(
+      (questionObj) => !removeTypes.includes(questionObj.questionId?.type)
+    )
     ?.map((questionObj) => questionObj?.questionId._id);
+  return { sectionDetails, sectionQuestionIds };
 };
