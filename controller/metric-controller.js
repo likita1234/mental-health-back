@@ -131,7 +131,7 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
   }
   // CASE 2: type =======> section
   else if (type === 'section') {
-    // CASE 2.1: chartType ===========> question-ratings-summation
+    // CASE 2.1: chartType ===========> question-ratings-summation (ONLY USED FOR WHO-5 At the moment)
     if (chartType === 'question-ratings-summation') {
       const data = await this.getQuestionRatingsSummation(formId, sectionId);
       // For percent calculation
@@ -210,16 +210,12 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
 
 exports.getQuestionRatingsSummation = async (formId, sectionId) => {
   // First fetch the section details
-  const sectionDetails = await SectionController.fetchSectionDetailsById(
-    sectionId
-  );
 
   // Extract all the questionIds in string format
-  let sectionQuestionIds = sectionDetails?.questions?.map((questionObj) => {
-    return questionObj?.questionId._id;
-  });
-
-  // Your aggregation pipeline
+  let sectionQuestionIds = await SectionController.fetchQuestionIdsBySectionId(
+    sectionId
+  );
+  // Now aggregate
   return await Answer.aggregate([
     // Match the condition ======> formId
     {

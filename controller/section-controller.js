@@ -161,3 +161,12 @@ exports.fetchSectionDetailsById = async (sectionId) => {
     throw new Error('Error fetching section details');
   }
 };
+
+// ===========> Function to fetch all questionIds related to a section: @params:- sectionId
+exports.fetchQuestionIdsBySectionId = async (sectionId) => {
+  const sectionDetails = await this.fetchSectionDetailsById(sectionId);
+  // Now return all the question ids
+  return sectionDetails?.questions?.map((questionObj) => {
+    return questionObj?.questionId._id;
+  });
+};
