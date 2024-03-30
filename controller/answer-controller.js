@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const _ = require('lodash');
 
 const APIFeatures = require('../utils/api-features');
 const Answer = require('../models/answer-model');
@@ -7,7 +8,7 @@ const Question = require('../models/question-model');
 const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
 
-const { getCategoryArray } = require('../enums');
+const { QuestionId, getCategoryArray } = require('../enums');
 
 // Submit Form answer
 exports.submitFormAnswer = catchAsync(async (req, res) => {
@@ -100,7 +101,9 @@ exports.getAllAnswers = catchAsync(async (req, res, next) => {
 // This function is useful for question type radio at the moment
 exports.aggregateGenderData = catchAsync(async (req, res, next) => {
   // Extract the category
-  const category = req.params.category;
+  const category = _.capitalize(req.params.category);
+  // Get the questionId based on the category, we use this on matching questionId below
+  const questionId = QuestionId[category];
   // Now get the arrays for data category wise
   const mappingsData = getCategoryArray(category);
 
@@ -116,7 +119,7 @@ exports.aggregateGenderData = catchAsync(async (req, res, next) => {
     {
       $match: {
         formId: mongoose.Types.ObjectId('65e4c1b053ac8d0d48982869'),
-        questionId: mongoose.Types.ObjectId('65d3a8780306fa10a0e60964'),
+        questionId: mongoose.Types.ObjectId(questionId),
       },
     },
     // Group the documents by the answer value and count occurrences
