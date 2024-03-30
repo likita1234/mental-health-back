@@ -65,20 +65,20 @@ exports.validateToken = catchAsync(async (req, res, next) => {
     return next(new AppError('You are not logged in! Please re login ', 401));
   }
   // console.log('token', token);
-  console.log('Decoding token');
+  // console.log('Decoding token');
   // 2) Verification Token
   const decodedToken = await promisifyJWTToken(token, process.env.JWT_SECRET);
 
   // 3) Check if user still exists
   // set active 0 part here later
-  const userExists = await User.findById(decodedToken.id);
-  if (!userExists) {
-    return next(new AppError("The user doesn't exist"));
+  const currentUser = await User.findById(decodedToken.id);
+  if (!currentUser) {
+    return next(new AppError("The user doesn't exist", 400));
   }
 
   // 4) Check if user changed password after token was used
   // iat is the issued at token timestamp of our json webtoken
-  if (userExists.changedPasswordAfter(decodedToken.iat)) {
+  if (currentUser.changedPasswordAfter(decodedToken.iat)) {
     return next(
       new AppError(
         'User recently changed password. Please re login to continue.',
@@ -86,6 +86,21 @@ exports.validateToken = catchAsync(async (req, res, next) => {
       ),
     );
   }
+  req.loggedUser = currentUser;
   // Grant Access to the Protected Route
   next();
 });
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.loggedUser.role)) {
+      return next(
+        new AppError(
+          "User doesn't have enough permissions to perform the action",
+          403,
+        ),
+      );
+    }
+    next();
+  };
+};

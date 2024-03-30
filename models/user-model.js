@@ -10,11 +10,12 @@ const userSchema = new mongoose.Schema({
   },
   surname: {
     type: String,
-    required: ['true', 'User surname is required!'],
+    // required: ['true', 'User surname is required!'],
     trim: true,
   },
   fullname: {
     type: String,
+    trim: true,
   },
   email: {
     type: String,
@@ -22,6 +23,11 @@ const userSchema = new mongoose.Schema({
     required: ['true', 'User email is required!'],
     lowercase: true,
     validate: [validator.isEmail, 'Email is invalid!'],
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'superadmin'],
+    default: 'user',
   },
   password: {
     type: String,
