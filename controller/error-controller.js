@@ -56,12 +56,14 @@ const handleJWTExpired = () =>
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
-
-  if (process.env.NODE_ENV === 'development') {
+  const environmentMode = process.env.NODE_ENV;
+  if (environmentMode === 'development') {
     sendErrorDev(err, res);
-  } else if (process.env.NODE_ENV === 'production') {
+  } else if (environmentMode === 'production') {
     let error = {
       ...err,
+      // issue with messages not being shown sometimes, so we are manually inserting it separately as well
+      message: err.message,
     };
     // Checks for invalid requests
     if (error.name === 'CastError') error = handleCastErrorDB(error);
