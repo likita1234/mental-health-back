@@ -481,11 +481,11 @@ const getOptionsDetails = (questionDetails) => {
 // Extract options labelings for ratings
 const getRatingsOptionsDetails = () => {
   return [
-    { label: 'Very Poor', value: 1 },
-    { label: 'Poor', value: 2 },
-    { label: 'Neutral', value: 3 },
-    { label: 'Good', value: 4 },
-    { label: 'Very Good', value: 5 },
+    { label: 'Very Poor (1)', value: 1 },
+    { label: 'Poor (2)', value: 2 },
+    { label: 'Neutral (3)', value: 3 },
+    { label: 'Good (4)', value: 4 },
+    { label: 'Very Good (5)', value: 5 },
   ]?.map((obj) => {
     return {
       ...obj,
