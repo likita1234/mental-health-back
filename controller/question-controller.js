@@ -59,7 +59,7 @@ exports.addQuestion = catchAsync(async (req, res, next) => {
   // 3) Then save question
   const newQuestion = await Question.create({
     ...req.body,
-    options: optionIds,
+    options: type === 'checkbox' || type === 'radio' ? optionIds : null,
   });
   // 4) Populate the 'options' field to get the actual option documents
   const populatedQuestion = await Question.populate(newQuestion, {
@@ -111,27 +111,30 @@ exports.updateQuestion = catchAsync(async (req, res, next) => {
   if (type) question.type = type;
 
   // 4) Update options if provided
-  if (options && options.length) {
-    const updatedOptionIds = [];
-    for (const option of options) {
-      let updatedOption;
-      // If option has an ID, update the existing option, otherwise create a new one
-      if (option._id && isObjectId(option._id)) {
-        updatedOption = await QuestionOption.findByIdAndUpdate(
-          option._id,
-          { title: option.title, optionValue: option.optionValue },
-          { new: true } // Return the updated option
-        );
-      } else {
-        updatedOption = await QuestionOption.create({
-          title: option.title,
-          optionValue: option.optionValue,
-        });
+  if (type === 'radio' || type === 'checkbox')
+    if (options && options.length) {
+      const updatedOptionIds = [];
+      for (const option of options) {
+        let updatedOption;
+        // If option has an ID, update the existing option, otherwise create a new one
+        if (option._id && isObjectId(option._id)) {
+          updatedOption = await QuestionOption.findByIdAndUpdate(
+            option._id,
+            { title: option.title, optionValue: option.optionValue },
+            { new: true } // Return the updated option
+          );
+        } else {
+          updatedOption = await QuestionOption.create({
+            title: option.title,
+            optionValue: option.optionValue,
+          });
+        }
+        updatedOptionIds.push(updatedOption._id);
       }
-      updatedOptionIds.push(updatedOption._id);
+      question.options = updatedOptionIds;
+    } else {
+      question.options = null;
     }
-    question.options = updatedOptionIds;
-  }
 
   // 5) Save the updated question
   await question.save();
