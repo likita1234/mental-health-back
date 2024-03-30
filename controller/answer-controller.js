@@ -61,6 +61,9 @@ exports.submitFormAnswer = catchAsync(async (req, res) => {
     }))
   );
 
+  // After the answers have been mapped out, trigger submission count on the existingForm
+  await existingForm.incrementSubmissionCount();
+
   res.status(201).json({
     status: 'success',
     data: {
