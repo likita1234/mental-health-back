@@ -1,4 +1,3 @@
-const Question = require('../models/question-model');
 const Section = require('../models/section-model');
 
 const APIFeatures = require('../utils/api-features');
@@ -45,7 +44,7 @@ exports.updateSection = catchAsync(async (req, res, next) => {
   if (!existingSection) {
     return next(new AppError('Section with that id doesnt exist', 404));
   }
-  // 2) Check if questions exists, then verify all the questions that exists are valid
+// 2) Check if questions exists, then verify all the questions that exists are valid
   const isValidQuestions = await validateQuestionIds(req.body.questions);
   // If there are any invalid questions then return error
   if (!isValidQuestions) {
@@ -105,7 +104,7 @@ exports.getSectionDetails = catchAsync(async (req, res, next) => {
   if (!existingSection) {
     return next(new AppError('No section found with that id', 404));
   }
-  // 3) Else return the question details
+  // 3) Else return the section details
   else {
     return res.status(200).json({
       status: 'success',
