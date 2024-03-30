@@ -1,3 +1,4 @@
+const AppError = require('../utils/app-errors');
 const { errors } = require('../utils/errors');
 
 const sendErrorDev = (err, res) => {
@@ -9,7 +10,7 @@ const sendErrorDev = (err, res) => {
   });
 };
 
-const sendErrorProduction = (err, res) => {
+const sendErrorProd = (err, res) => {
   // Operational error:- send message to the client
   if (err.isOperational) {
     res.status(err.statusCode).json({
@@ -28,6 +29,11 @@ const sendErrorProduction = (err, res) => {
   }
 };
 
+const handleCastErrorDB = (error) => {
+  const message = `Incalid ${error.path}: ${error.value}.`;
+  return new AppError(message, 400);
+};
+
 // global error handling
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
@@ -36,6 +42,14 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    sendErrorProduction(err, res);
+    let error = {
+      ...err,
+    };
+    // Checks for invalid requests
+    if (error.name === 'CastError') {
+      error = handleCastErrorDB(error);
+    }
+
+    sendErrorProd(error, res);
   }
 };
