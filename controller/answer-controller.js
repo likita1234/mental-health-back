@@ -1,4 +1,6 @@
 const Answer = require('../models/Answer');
+const AssessmentForm = require('../models/assessment-form-model');
+const Question = require('../models/question-model');
 const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
 
@@ -10,6 +12,14 @@ exports.createAnswer = catchAsync(async (req, res) => {
   if (!formId) {
     return next(new AppError('FormId is required', 400));
   }
+  // Check if formId is a valid ObjectId and exists
+  if (!mongoose.Types.ObjectId.isValid(formId)) {
+    return next(new AppError(`Form ID ${formId} invalid`, 400));
+  }
+  const existingForm = await AssessmentForm.findById(formId);
+  if (!existingForm) {
+    return next(new AppError(`Form with ID ${formId} not found`, 400));
+  }
 
   // Check if answers array is provided and not empty
   if (!answers || !Array.isArray(answers) || answers.length === 0) {
@@ -18,6 +28,17 @@ exports.createAnswer = catchAsync(async (req, res) => {
 
   // Validate each answer in the array
   for (const answer of answers) {
+    if (!mongoose.Types.ObjectId.isValid(answer.questionId)) {
+      return next(
+        new AppError(`Invalid question id ${answer.questionId}`, 400)
+      );
+    }
+    const existingQuestion = await Question.findById(answer.questionId);
+    if (!existingQuestion) {
+      return next(
+        new AppError(`Question with ID ${answer.questionId} not found`, 400)
+      );
+    }
     if (!answer.questionId || answer.answer === undefined) {
       return next(
         new AppError(
