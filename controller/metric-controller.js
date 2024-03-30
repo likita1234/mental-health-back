@@ -121,7 +121,7 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
     }
     // CASE 1.1: chartType-> table, bar, pie, line, ratings
     if (['table', 'bar', 'pie', 'line', 'ratings'].includes(chartType)) {
-      metricData = await this.getAggregatedData(
+      metricData = await getAggregatedData(
         formId,
         questionId,
         existingQuestion
@@ -137,7 +137,7 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
       await SectionController.fetchQuestionIdsBySectionId(sectionId);
     // CASE 2.1: chartType ===========> question-ratings-summation (ONLY USED FOR WHO-5 At the moment)
     if (chartType === 'question-ratings-summation') {
-      const data = await this.getQuestionRatingsSummation(
+      const data = await getQuestionRatingsSummation(
         formId,
         sectionQuestionIds
       );
@@ -188,9 +188,11 @@ exports.fetchMetricDetails = async (metricId) => {
   }
 };
 
+// =========> Private functions starts ==============>>>>>>>>>>
+
 // Helpers for aggregation of data
 // Later optimize the questionId and questionDetails
-exports.getAggregatedData = async (formId, questionId, questionDetails) => {
+const getAggregatedData = async (formId, questionId, questionDetails) => {
   // Extract all the options from the questionDetails first
   const isCheckboxType = questionDetails?.type === 'checkbox';
   const isRatingsType = questionDetails?.type === 'ratings';
@@ -215,7 +217,7 @@ exports.getAggregatedData = async (formId, questionId, questionDetails) => {
   };
 };
 
-exports.getQuestionRatingsSummation = async (formId, sectionQuestionIds) => {
+const getQuestionRatingsSummation = async (formId, sectionQuestionIds) => {
   // First fetch the section details
 
   // Now aggregate
@@ -482,3 +484,5 @@ const getRatingsOptionsDetails = () => {
     };
   });
 };
+
+// =========> Private functions ends =============>>>>>>>>>>
