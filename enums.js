@@ -1,3 +1,4 @@
+// At the moment these enums are not being used
 const _ = require('lodash');
 
 const AppError = require('./utils/app-errors');

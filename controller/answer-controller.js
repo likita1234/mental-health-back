@@ -103,6 +103,7 @@ exports.getAllAnswers = catchAsync(async (req, res, next) => {
   });
 });
 
+// This is not supported at the moment, dont use this and delete it later in future of make changes
 // Aggregate the gender information and display the data
 // At the moment, there is a limitation on its support only on mental health assessment form
 // This function is useful for question type radio at the moment
