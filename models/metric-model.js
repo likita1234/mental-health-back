@@ -28,7 +28,7 @@ const metricSchema = new mongoose.Schema({
       'ratings',
       //=======> For sections
       'questions-table',
-      'question-ratings-summation', //only supports (type->section with question of ratings type)
+      'question-options-summation', //only supports (type->section with question of ratings type)
     ],
     default: 'table',
   },

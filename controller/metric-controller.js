@@ -139,9 +139,9 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
         sectionId,
         unwantedTypes
       );
-    // CASE 2.1: chartType ===========> question-ratings-summation (ONLY USED FOR WHO-5 At the moment)
-    if (chartType === 'question-ratings-summation') {
-      const data = await getQuestionRatingsSummation(
+    // CASE 2.1: chartType ===========> question-options-summation (ONLY USED FOR WHO-5 At the moment)
+    if (chartType === 'question-options-summation') {
+      const data = await getQuestionOptionsSummation(
         formId,
         sectionQuestionIds
       );
@@ -226,7 +226,7 @@ const getAggregatedData = async (formId, questionId, questionDetails) => {
   };
 };
 
-const getQuestionRatingsSummation = async (formId, sectionQuestionIds) => {
+const getQuestionOptionsSummation = async (formId, sectionQuestionIds) => {
   return await Answer.aggregate([
     // Match the condition ======> formId
     {
