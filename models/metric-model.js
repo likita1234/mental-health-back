@@ -12,8 +12,8 @@ const metricSchema = new mongoose.Schema({
   type: {
     type: String,
     required: [true, 'Select either of the options'],
-    enum: ['question_only', 'section_wise'],
-    default: 'question_only',
+    enum: ['question', 'section'],
+    default: 'question',
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
