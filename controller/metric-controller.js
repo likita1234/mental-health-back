@@ -580,14 +580,16 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
   // Use the mapping object to update answer keys to labels in the result
   const mappedResult = result.map(({ questionId, answers }) => ({
     questionId,
-    answers: answers.map((answer) =>
-      Object.fromEntries(
-        Object.entries(answer).map(([value, count]) => [
-          optionsMap[questionId][value],
-          count,
-        ])
-      )
-    ),
+    answers: answers.map((answer) => {
+      const mappedAnswer = {};
+      Object.entries(answer).forEach(([value, count]) => {
+        // Only map keys with non-zero counts
+        if (count !== 0) {
+          mappedAnswer[optionsMap[questionId][value]] = count;
+        }
+      });
+      return mappedAnswer;
+    }),
   }));
 
   return mappedResult;
