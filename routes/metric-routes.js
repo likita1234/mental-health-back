@@ -21,7 +21,7 @@ router
   .get(authController.validateToken, metricController.getMetricData);
 // =================> Question
 router
-  .route('/keywords-analysis/:questionId')
+  .route('/keywords-analysis/:formId/:questionId')
   .get(authController.validateToken, metricController.getKeywordsAnalysisByQuestion);
 
 // =================> Section Wise :- All Questions Included analysis (Filter out open end) <=================||
