@@ -201,7 +201,7 @@ exports.getTableAnalysisByFormAndSection = catchAsync(
     res.status(200).json({
       status: 'success',
       data: {
-        // sectionDetails,
+        sectionDetails,
         metricData,
       },
     });
