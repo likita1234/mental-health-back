@@ -62,6 +62,27 @@ const stopwords = new Set([
   'the',
 ]);
 
+// Analysis by a particular sentence
+exports.analyzeSentence = (sentence) => {
+  const wordFreq = {};
+  const tokens = tokenizer.tokenize(sentence.toLowerCase());
+  // Generate bi-grams
+  const biGrams = NGrams.bigrams(tokens);
+  biGrams.forEach((biGram) => {
+    const token = biGram.join(' '); 
+    if (!stopwords.has(token)) {
+      // Exclude stopwords
+      if (wordFreq[token]) {
+        wordFreq[token]++;
+      } else {
+        wordFreq[token] = 1;
+      }
+    }
+  });
+  return wordFreq;
+};
+
+// Function to tokenize text, remove stopwords, and perform frequency analysis
 exports.analyzeWordsFrequencyFromAnswers = (answers) => {
   if (answers && answers.length > 0) {
     // Perform analysis
