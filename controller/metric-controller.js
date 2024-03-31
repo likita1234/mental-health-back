@@ -210,7 +210,7 @@ exports.getTableAnalysisByFormAndSection = catchAsync(
 // Keywords based Analysis of Questions of type Open end and text type
 exports.getKeywordsAnalysisByQuestion = catchAsync(async (req, res, next) => {
   let keywords = {};
-  const { questionId } = req.params;
+  const { formId, questionId } = req.params;
   // Check questionId validity
   if (!questionId) {
     res.status(401).json({
@@ -220,12 +220,14 @@ exports.getKeywordsAnalysisByQuestion = catchAsync(async (req, res, next) => {
   }
 
   // Fetch keywords information
-  keywords = await getAnswerKeywordsAnalysisByQuestionId(questionId);
+  keywords = await getAnswerKeywordsAnalysisByQuestionId(formId, questionId);
 
   res.status(200).json({
     status: 'success',
     data: {
       keywords,
+      formId,
+      questionId,
     },
   });
 });
@@ -623,8 +625,25 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
 };
 
 // Function for analysis of keywords
-const getAnswerKeywordsAnalysisByQuestionId = async (questionId) => {
-  return questionId;
+const getAnswerKeywordsAnalysisByQuestionId = async (formId, questionId) => {
+  const answersByUserId = await Answer.aggregate([
+    // Match the condition ======> formId and questionId
+    {
+      $match: {
+        formId: mongoose.Types.ObjectId(formId),
+        questionId: mongoose.Types.ObjectId(questionId),
+      },
+    },
+    // Project stage to push entire documents into an array
+    {
+      $group: {
+        _id: '$userId',
+        answer: { $first: '$answer' },
+      },
+    },
+  ]);
+
+  return answersByUserId;
 };
 
 // Handler sorting orders by options
