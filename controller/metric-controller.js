@@ -9,6 +9,7 @@ const Answer = require('../models/answer-model');
 const QuestionController = require('../controller/question-controller');
 const SectionController = require('../controller/section-controller');
 
+const { analyzeKeywordsFrequencyInAnswers } = require('../utils/nlp-handler');
 const { validateQuestionIds } = require('../validators/section-validators');
 const {
   validateSectionIds,
@@ -131,7 +132,6 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
         existingQuestion
       );
     }
-    // ========> CASE 1.2:- NLP included where its only for text area type or text types
   }
   // CASE 2: type =======> section
   else if (type === 'section') {
@@ -207,6 +207,29 @@ exports.getTableAnalysisByFormAndSection = catchAsync(
     });
   }
 );
+
+// Keywords based Analysis of Questions of type Open end and text type
+exports.getKeywordsAnalysisByQuestion = catchAsync(async (req, res, next) => {
+  const { formId, questionId } = req.params;
+  // Check questionId validity
+  if (!questionId) {
+    res.status(401).json({
+      status: 'fail',
+      message: `Invalid question id ${questionId}`,
+    });
+  }
+
+  // Fetch keywords information
+  const response = await getAnswerKeywordsAnalysisByQuestionId(
+    formId,
+    questionId
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: response,
+  });
+});
 
 // Helper to fetch metric details
 // ===========> Function to fetch question details
@@ -598,6 +621,37 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
   });
 
   return finalMappedResult;
+};
+
+// Function for analysis of keywords
+const getAnswerKeywordsAnalysisByQuestionId = async (formId, questionId) => {
+  const answersByUserId = await Answer.aggregate([
+    // Match the condition ======> formId and questionId
+    {
+      $match: {
+        formId: mongoose.Types.ObjectId(formId),
+        questionId: mongoose.Types.ObjectId(questionId),
+      },
+    },
+    // Project stage to push entire documents into an array
+    {
+      $group: {
+        _id: '$userId',
+        answer: { $first: '$answer' },
+      },
+    },
+  ]);
+
+  // Extract each answer
+  const overallAnswers = answersByUserId?.map((answerObj) => answerObj.answer);
+  // Initiate new array to store all details along with keywords info
+  const frequentKeywordsByUsers = await analyzeKeywordsFrequencyInAnswers(
+    overallAnswers
+  );
+  return {
+    keywords: frequentKeywordsByUsers,
+    answers: answersByUserId,
+  };
 };
 
 // Handler sorting orders by options
