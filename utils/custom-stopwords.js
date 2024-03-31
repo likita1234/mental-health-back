@@ -230,5 +230,13 @@ exports.customStopwords = new Set([
   'here',
   'first',
   'arrived',
-  ''
+  'used',
+  'more',
+  'host',
+  'local',
+  'back',
+  'due',
+  'how',
+  'took',
+  'found',
 ]);
