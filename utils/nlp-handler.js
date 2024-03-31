@@ -1,122 +1,48 @@
-const natural = require('natural');
-const { WordTokenizer } = natural;
+const { WordTokenizer, PorterStemmer } = require('natural');
+const { customStopwords } = require('./custom-stopwords');
+
 const tokenizer = new WordTokenizer();
 
-// Define stopwords (verbs, pronouns, and articles)
-const stopwords = new Set([
-  'i',
-  'me',
-  'my',
-  'myself',
-  'we',
-  'our',
-  'ours',
-  'ourselves',
-  'you',
-  'your',
-  'yours',
-  'yourself',
-  'yourselves',
-  'he',
-  'him',
-  'his',
-  'himself',
-  'she',
-  'her',
-  'hers',
-  'herself',
-  'it',
-  'its',
-  'itself',
-  'they',
-  'them',
-  'their',
-  'theirs',
-  'themselves',
-  'what',
-  'which',
-  'who',
-  'whom',
-  'this',
-  'that',
-  'these',
-  'those',
-  'am',
-  'is',
-  'are',
-  'was',
-  'were',
-  'be',
-  'been',
-  'being',
-  'have',
-  'has',
-  'had',
-  'having',
-  'do',
-  'does',
-  'did',
-  'doing',
-  'a',
-  'an',
-  'the',
-]);
+// Analysis by answers
+exports.analyzeKeywordsFrequencyInAnswers = (answers) => {
+  const words = {};
 
-// Analysis by a particular sentence
-exports.analyzeSentence = (sentence) => {
-  const wordFreq = {};
-  const tokens = tokenizer.tokenize(sentence.toLowerCase());
-  // Generate bi-grams
-  const biGrams = NGrams.bigrams(tokens);
-  biGrams.forEach((biGram) => {
-    const token = biGram.join(' '); 
-    if (!stopwords.has(token)) {
-      // Exclude stopwords
-      if (wordFreq[token]) {
-        wordFreq[token]++;
-      } else {
-        wordFreq[token] = 1;
-      }
-    }
-  });
-  return wordFreq;
-};
-
-// Function to tokenize text, remove stopwords, and perform frequency analysis
-exports.analyzeWordsFrequencyFromAnswers = (answers) => {
-  if (answers && answers.length > 0) {
-    // Perform analysis
-    const wordFrequency = analyzeText(answers);
-
-    // Sort word frequency by frequency
-    return Object.entries(wordFrequency)
-      .sort((a, b) => b[1] - a[1])
-      .reduce((acc, [word, frequency]) => {
-        acc[word] = frequency;
-        return acc;
-      }, {});
-  }
-  return {};
-};
-
-// Function to tokenize text, remove stopwords, and perform frequency analysis
-const analyzeText = (texts) => {
-  const wordFreq = {};
-  texts.forEach((text) => {
-    const tokens = tokenizer.tokenize(text.toLowerCase());
-    // Generate bi-grams
-    const biGrams = NGrams.bigrams(tokens);
-    biGrams.forEach((biGram) => {
-      const token = biGram.join(' '); // Convert bi-gram array to string
-      if (!stopwords.has(token)) {
-        // Exclude stopwords
-        if (wordFreq[token]) {
-          wordFreq[token]++;
+  // Loop through each answer in the array
+  answers.forEach((answer) => {
+    const tokens = tokenizer.tokenize(answer.toLowerCase());
+    tokens.forEach((token) => {
+      // Exclude stopwords, single-letter tokens, and tokens that are in custom stopwords
+      if (token.length > 3 && !customStopwords.has(token)) {
+        const baseToken = token.replace(/(d|es|ed|ies|ly|s|y)$/, ''); // Remove common suffixes
+        if (!words[baseToken] || words[baseToken][1] < 1) {
+          words[baseToken] = [token, 1];
         } else {
-          wordFreq[token] = 1;
+          words[baseToken][1]++;
         }
       }
     });
   });
-  return wordFreq;
+
+  // Convert grouped words back to a regular object
+  const finalWords = {};
+  for (const baseToken in words) {
+    const [token, frequency] = words[baseToken];
+    finalWords[token] = frequency;
+  }
+
+  return sortedWords(finalWords);
+};
+
+// Sort the word frequency object by frequency in descending order
+const sortedWords = (words) => {
+  // Convert object to array of key-value pairs
+  const sortedEntries = Object.entries(words).sort((a, b) =>
+    a[0].localeCompare(b[0])
+  );
+  // Create a new object from the sorted key-value pairs
+  const sortedWords = {};
+  for (const [key, value] of sortedEntries) {
+    sortedWords[key] = value;
+  }
+  return sortedWords;
 };
