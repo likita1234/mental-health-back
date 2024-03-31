@@ -131,7 +131,6 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
         existingQuestion
       );
     }
-    // ========> CASE 1.2:- NLP included where its only for text area type or text types
   }
   // CASE 2: type =======> section
   else if (type === 'section') {
@@ -207,6 +206,29 @@ exports.getTableAnalysisByFormAndSection = catchAsync(
     });
   }
 );
+
+// Keywords based Analysis of Questions of type Open end and text type
+exports.getKeywordsAnalysisByQuestion = catchAsync(async (req, res, next) => {
+  let keywords = {};
+  const { questionId } = req.params;
+  // Check questionId validity
+  if (!questionId) {
+    res.status(401).json({
+      status: 'fail',
+      message: `Invalid question id ${questionId}`,
+    });
+  }
+
+  // Fetch keywords information
+  keywords = await getAnswerKeywordsAnalysisByQuestionId(questionId);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      keywords,
+    },
+  });
+});
 
 // Helper to fetch metric details
 // ===========> Function to fetch question details
@@ -598,6 +620,11 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
   });
 
   return finalMappedResult;
+};
+
+// Function for analysis of keywords
+const getAnswerKeywordsAnalysisByQuestionId = async (questionId) => {
+  return questionId;
 };
 
 // Handler sorting orders by options

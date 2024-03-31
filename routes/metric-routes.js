@@ -11,24 +11,31 @@ router
   .post(authController.validateToken, metricController.addMetric);
 
 // ======================================================
+//  Data Aggregations Starts
 // ______________________________________________________
 
-// =================> Question wise generic data analysis
-// =================> WHO-5 Summation Calculation data analysis
+// =================> Question wise generic data analysis and   <=================||
+// =================> WHO-5 Summation Calculation data analysis <=================||
 router
   .route('/:metricId/data')
   .get(authController.validateToken, metricController.getMetricData);
+// =================> Question
+router
+  .route('/keywords-analysis/:questionId')
+  .get(authController.validateToken, metricController.getKeywordsAnalysisByQuestion);
 
-// =================> Section Wise :- All Questions Included analysis (Filter out open end)
+// =================> Section Wise :- All Questions Included analysis (Filter out open end) <=================||
 router
   .route('/:formId/:sectionId/data')
   .get(
     authController.validateToken,
     metricController.getTableAnalysisByFormAndSection
   );
-// =================> All Sections Ratings Questions based :- Correlation analysis (Pearson) and Regression Analysis
+// =================> All Sections Ratings Questions based :
+//  Correlation analysis (Pearson) and Regression Analysis    <=================||
 
 // ______________________________________________________
+//  Data Aggregations Ends
 // ======================================================
 
 module.exports = router;
