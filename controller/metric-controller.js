@@ -9,6 +9,7 @@ const Answer = require('../models/answer-model');
 const QuestionController = require('../controller/question-controller');
 const SectionController = require('../controller/section-controller');
 
+const { analyzeKeywordsFrequencyInAnswers } = require('../utils/nlp-handler');
 const { validateQuestionIds } = require('../validators/section-validators');
 const {
   validateSectionIds,
@@ -209,7 +210,6 @@ exports.getTableAnalysisByFormAndSection = catchAsync(
 
 // Keywords based Analysis of Questions of type Open end and text type
 exports.getKeywordsAnalysisByQuestion = catchAsync(async (req, res, next) => {
-  let keywords = {};
   const { formId, questionId } = req.params;
   // Check questionId validity
   if (!questionId) {
@@ -220,15 +220,14 @@ exports.getKeywordsAnalysisByQuestion = catchAsync(async (req, res, next) => {
   }
 
   // Fetch keywords information
-  keywords = await getAnswerKeywordsAnalysisByQuestionId(formId, questionId);
+  const response = await getAnswerKeywordsAnalysisByQuestionId(
+    formId,
+    questionId
+  );
 
   res.status(200).json({
     status: 'success',
-    data: {
-      keywords,
-      formId,
-      questionId,
-    },
+    data: response,
   });
 });
 
@@ -643,7 +642,16 @@ const getAnswerKeywordsAnalysisByQuestionId = async (formId, questionId) => {
     },
   ]);
 
-  return answersByUserId;
+  // Extract each answer
+  const overallAnswers = answersByUserId?.map((answerObj) => answerObj.answer);
+  // Initiate new array to store all details along with keywords info
+  const frequentKeywordsByUsers = await analyzeKeywordsFrequencyInAnswers(
+    overallAnswers
+  );
+  return {
+    keywords: frequentKeywordsByUsers,
+    answers: answersByUserId,
+  };
 };
 
 // Handler sorting orders by options
