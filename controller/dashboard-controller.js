@@ -165,12 +165,16 @@ exports.getDashboardData = catchAsync(async (req, res, next) => {
     (metricObj) => metricObj.metricId
   );
 
+  const allMetricsData = await metricController.fetchMetricsDataByIds(
+    metricIds,
+    next
+  );
+
   res.status(200).json({
     status: 'success',
-    data: { metricIds },
+    data: allMetricsData,
   });
 });
-
 
 // Helper to fetch metric details
 // ===========> Function to fetch question details
