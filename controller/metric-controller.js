@@ -25,8 +25,8 @@ exports.getAllMetrics = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(Metric.find({ active: true }), req.query)
     .filter()
     .sort()
-    .limitFields()
-    .paginate();
+    .limitFields();
+  // .paginate();
   const metrics = await features.query;
 
   // Create a new APIFeatures instance without pagination to count total documents
@@ -109,67 +109,18 @@ exports.getMetricData = catchAsync(async (req, res, next) => {
     chartType,
   } = existingMetric;
 
-  // Initiate an empty metric data
-  let metricData = {};
+  const metricData = await fetchMetricData(
+    {
+      formId,
+      questionId,
+      sectionId,
+      title,
+      chartType,
+      type,
+    },
+    next
+  );
 
-  // Now check what chart type it is expecting
-  // CASE 1: type ==========> question
-  if (type === 'question') {
-    // If Type is question, fetch question details first
-    const existingQuestion = await QuestionController.fetchQuestionDetailsById(
-      questionId
-    );
-    if (!existingQuestion) {
-      return next(
-        new AppError(`Question with ID ${questionId} not found`, 400)
-      );
-    }
-    // CASE 1.1: chartType-> table, bar, pie, line, ratings
-    if (['table', 'bar', 'pie', 'line', 'ratings'].includes(chartType)) {
-      metricData = await getAggregatedData(
-        formId,
-        questionId,
-        existingQuestion
-      );
-    }
-  }
-  // CASE 2: type =======> section
-  else if (type === 'section') {
-    // In case of section, there are possibilites of requiring to use questionIds so we will fetch it here
-    // Extract all the questionIds in string format
-    const { sectionQuestionIds } =
-      await SectionController.fetchQuestionIdsBySectionId(
-        sectionId,
-        unwantedTypes
-      );
-    // CASE 2.1: chartType ===========> question-options-summation (ONLY USED FOR WHO-5 At the moment)
-    if (chartType === 'question-options-summation') {
-      const data = await getQuestionOptionsSummation(
-        formId,
-        sectionQuestionIds
-      );
-      // For percent calculation
-      let totalCountSum = 0;
-      data?.forEach((dataObj) => (totalCountSum += dataObj.count));
-      let labels = [];
-      let counts = [];
-      let percent = [];
-      // let answers = [];
-      for (let i = 0; i < data?.length; i++) {
-        labels.push(data[i].label);
-        counts.push(data[i].count);
-        percent.push(((data[i].count / totalCountSum) * 100).toFixed(2));
-        // answers = answers.concat(data[i].answers); //for temp
-      }
-      metricData = {
-        data: {
-          labels,
-          data: [{ label: title, count: counts, percent }],
-        },
-        // answers, // for temp
-      };
-    }
-  }
   res.status(200).json({
     status: 'success',
     data: {
@@ -245,6 +196,93 @@ exports.fetchMetricDetails = async (metricId) => {
 };
 
 // =========> Private functions starts ==============>>>>>>>>>>
+
+// Extract metric data
+const fetchMetricData = async (
+  { formId, questionId, sectionId, type, chartType, title },
+  next
+) => {
+  // Initiate an empty metric data
+  let metricData = {};
+
+  // Now check what chart type it is expecting
+  // CASE 1: type ==========> question
+  if (type === 'question') {
+    metricData = await handleQuestionTypeMetricData(
+      { formId, questionId, chartType },
+      next
+    );
+  }
+  // CASE 2: type =======> section
+  else if (type === 'section') {
+    metricData = await handleSectionTypeMetricData({
+      title,
+      formId,
+      sectionId,
+      chartType,
+    });
+  }
+
+  return metricData;
+};
+
+const handleQuestionTypeMetricData = async (
+  { formId, questionId, chartType },
+  next
+) => {
+  // If Type is question, fetch question details first
+  const existingQuestion = await QuestionController.fetchQuestionDetailsById(
+    questionId
+  );
+  if (!existingQuestion) {
+    return next(new AppError(`Question with ID ${questionId} not found`, 400));
+  }
+  // CASE 1.1: chartType-> table, bar, pie, line, ratings
+  if (['table', 'bar', 'pie', 'line', 'ratings'].includes(chartType)) {
+    return await getAggregatedData(formId, questionId, existingQuestion);
+  }
+  return {};
+};
+
+const handleSectionTypeMetricData = async ({
+  title,
+  formId,
+  sectionId,
+  chartType,
+}) => {
+  // In case of section, there are possibilites of requiring to use questionIds so we will fetch it here
+  // Extract all the questionIds in string format
+  const { sectionQuestionIds } =
+    await SectionController.fetchQuestionIdsBySectionId(
+      sectionId,
+      unwantedTypes
+    );
+  // CASE 2.1: chartType ===========> question-options-summation (ONLY USED FOR WHO-5 At the moment)
+  if (chartType === 'question-options-summation') {
+    const data = await getQuestionOptionsSummation(formId, sectionQuestionIds);
+    // For percent calculation
+    let totalCountSum = 0;
+    data?.forEach((dataObj) => (totalCountSum += dataObj.count));
+    let labels = [];
+    let counts = [];
+    let percent = [];
+    // let answers = [];
+    for (let i = 0; i < data?.length; i++) {
+      labels.push(data[i].label);
+      counts.push(data[i].count);
+      percent.push(((data[i].count / totalCountSum) * 100).toFixed(2));
+      // answers = answers.concat(data[i].answers); //for temp
+    }
+    return {
+      data: {
+        labels,
+        data: [{ label: title, count: counts, percent }],
+      },
+      // answers, // for temp
+    };
+  }
+  return {};
+};
 
 // Helpers for aggregation of data
 // Later optimize the questionId and questionDetails
