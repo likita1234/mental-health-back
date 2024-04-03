@@ -196,6 +196,54 @@ exports.fetchMetricDetails = async (metricId) => {
 };
 
 // =========> Private functions starts ==============>>>>>>>>>>
+// Helper to fetch multiple metrics data at once => At the moment it only supports one metric with question type of ratings
+exports.fetchMetricsDataByIds = async (metricIds, next) => {
+  let overallMetricData = [];
+  // Loop through each metric Id and fetch its data
+  for (let i = 0; i < metricIds.length; i++) {
+    const metricId = metricIds[i];
+    // Fetch metric details first
+    const existingMetric = await this.fetchMetricDetails(metricId);
+    // Fetch metric details
+    if (!existingMetric) {
+      return next(
+        new AppError(`Metric details with ID ${metricId} not found`, 400)
+      );
+    }
+    // Now, extract the required information from metric details
+    const {
+      _id,
+      title,
+      type,
+      description,
+      formId,
+      questionId,
+      sectionId,
+      chartType,
+    } = existingMetric;
+
+    // Now Fetch every metric datadata
+    const metricData = await fetchMetricData(
+      {
+        formId,
+        questionId,
+        sectionId,
+        title,
+        chartType,
+        type,
+      },
+      next
+    );
+
+    overallMetricData.push({
+      id: _id,
+      title,
+      description,
+      metricData,
+    });
+  }
+  return overallMetricData;
+};
 
 // Extract metric data
 const fetchMetricData = async (
