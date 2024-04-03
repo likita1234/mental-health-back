@@ -13,6 +13,12 @@ router
 router
   .route('/:dashboardId')
   .get(authController.validateToken, dashboardController.getDashboardDetails)
-  .patch(authController.validateToken, dashboardController.updateDashboardDetails);
+  .patch(
+    authController.validateToken,
+    dashboardController.updateDashboardDetails
+  );
 
+router
+  .route('/:dashboardId/data')
+  .get(authController.validateToken, dashboardController.getDashboardData);
 module.exports = router;
