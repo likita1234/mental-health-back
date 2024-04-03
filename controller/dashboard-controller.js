@@ -149,6 +149,29 @@ exports.updateDashboardDetails = catchAsync(async (req, res, next) => {
   });
 });
 
+// Get dashboard data
+exports.getDashboardData = catchAsync(async (req, res, next) => {
+  const { dashboardId } = req.params;
+  // Check if dashboardId is valid or not
+  const existingDashboard = await fetchDashboardDetailsById(dashboardId);
+
+  if (!existingDashboard) {
+    return next(new AppError('Invalid dashbard id in the request', 400));
+  }
+  // Extract basic dashboard details
+  const { _id, title, description, metrics } = existingDashboard;
+  // Extract metrics first
+  const metricIds = existingDashboard.metrics?.map(
+    (metricObj) => metricObj.metricId
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: { metricIds },
+  });
+});
+
+
 // Helper to fetch metric details
 // ===========> Function to fetch question details
 const fetchDashboardDetailsById = async (id) => {
