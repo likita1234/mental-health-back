@@ -124,14 +124,19 @@ exports.getAssessmentFormDetails = catchAsync(async (req, res, next) => {
   })
     .select('-__v')
     .populate({
-      path: 'sections.sectionId',
-      select: '-__v',
+      path: 'sections',
+      select: '-_id -__v', // Exclude _id and __v fields from section
+      options: { sort: { order: 1 } }, // Sort sections by order
       populate: {
-        path: 'questions.questionId',
+        path: 'sectionId',
         select: '-__v',
         populate: {
-          path: 'options',
+          path: 'questions.questionId',
           select: '-__v',
+          populate: {
+            path: 'options',
+            select: '-__v',
+          },
         },
       },
     });
