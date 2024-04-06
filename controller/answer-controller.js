@@ -16,7 +16,7 @@ const { QuestionId, getCategoryArray } = require('../enums');
 const { createUniqueDateString } = require('../utils/date-formatter');
 
 // Submit Form answer
-exports.submitFormAnswer = catchAsync(async (req, res) => {
+exports.submitFormAnswer = catchAsync(async (req, res, next) => {
   const { formId, userId, answers } = req.body;
 
   // Check if formId is provided
