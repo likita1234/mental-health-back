@@ -7,7 +7,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(authController.validateToken, formController.getAllAssessmentForms)
+  .get(formController.getAllAssessmentForms)
   .post(authController.validateToken, formController.addAssessmentForm);
 
 router
