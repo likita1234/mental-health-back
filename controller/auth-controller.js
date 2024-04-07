@@ -42,12 +42,23 @@ const createAndSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+  const { username, email, password, confirmPassword } = req.body;
+  // Check if the user email already exists
+  const user = await User.findOne({ email });
+  if (user) {
+    return next(
+      new AppError(
+        'Email has already been taken. Please use another email',
+        400
+      )
+    );
+  }
+  // Create a new user record
   const newUser = await User.create({
-    name: req.body.name,
-    surname: req.body.surname,
-    email: req.body.email,
-    password: req.body.password,
-    confirmPassword: req.body.confirmPassword,
+    username,
+    email,
+    password,
+    confirmPassword,
   });
   // Generate token and send the response
   createAndSendToken(newUser, 201, res);
@@ -61,7 +72,7 @@ exports.signin = catchAsync(async (req, res, next) => {
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
   }
-  // check if the user exFists and the password is correct
+  // check if the user exists and the password is correct
   const user = await User.findOne({ email }).select('+password');
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Invalid credentials', 401));
@@ -82,8 +93,6 @@ exports.validateToken = catchAsync(async (req, res, next) => {
   if (!token) {
     return next(new AppError('You are not logged in! Please re login ', 401));
   }
-  // console.log('token', token);
-  // console.log('Decoding token');
   // 2) Verification Token
   const decodedToken = await promisifyJWTToken(token, process.env.JWT_SECRET);
 
@@ -100,8 +109,8 @@ exports.validateToken = catchAsync(async (req, res, next) => {
     return next(
       new AppError(
         'User recently changed password. Please re login to continue.',
-        401,
-      ),
+        401
+      )
     );
   }
   req.loggedUser = currentUser;
@@ -115,8 +124,8 @@ exports.restrictTo = (...roles) => {
       return next(
         new AppError(
           "User doesn't have enough permissions to perform the action",
-          403,
-        ),
+          403
+        )
       );
     }
     next();
@@ -137,7 +146,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
   // 3) Send it to user's email
   const resetURL = `${req.protocol}://${req.get(
-    'host',
+    'host'
   )}/api/v1/auth/resetPassword/${resetToken}`;
 
   const message = `Forgot your password ? Please follow the link below to reset your password:\n ${resetURL}.\n If you didn't reset your password, please ignore this email!`;
@@ -159,7 +168,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     return next(
-      new AppError('Error sending the email. Please try again later!', 500),
+      new AppError('Error sending the email. Please try again later!', 500)
     );
   }
 });
@@ -194,12 +203,12 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   const { currentPassword, newPassword, confirmPassword } = req.body;
   // 1) Get User from the collection
   const currentUser = await User.findById(req.loggedUser.id).select(
-    '+password',
+    '+password'
   );
   // 2) Check if the current password set is correct or not by comparing its hash code
   const passwordMatches = await currentUser.correctPassword(
     currentPassword,
-    currentUser.password,
+    currentUser.password
   );
   if (!passwordMatches) {
     return next(new AppError('The current password is incorrect.', 403));
