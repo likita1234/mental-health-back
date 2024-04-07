@@ -150,11 +150,15 @@ exports.fetchSectionDetailsById = async (sectionId) => {
     })
       .select('-__v')
       .populate({
-        path: 'questions.questionId',
-        select: '-__v',
+        path: 'questions',
+        options: { sort: { order: 1 } },
         populate: {
-          path: 'options',
+          path: 'questionId',
           select: '-__v',
+          populate: {
+            path: 'options',
+            select: '-__v',
+          },
         },
       });
   } catch (error) {

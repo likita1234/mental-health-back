@@ -131,12 +131,16 @@ exports.getAssessmentFormDetails = catchAsync(async (req, res, next) => {
         path: 'sectionId',
         select: '-__v',
         populate: {
-          path: 'questions.questionId',
-          select: '-__v',
-          populate: {
-            path: 'options',
+          path: 'questions',
+          options: {sort: {order: 1}},
+          populate:{
+            path: 'questionId',
             select: '-__v',
-          },
+            populate: {
+              path: 'options',
+              select: '-__v',
+            },
+          }
         },
       },
     });
