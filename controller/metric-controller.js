@@ -182,8 +182,114 @@ exports.getKeywordsAnalysisByQuestion = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getPersonalRatingsData = async (formId, questionIds) => {
+  const optionsMappings = getRatingsOptionsDetails();
+  const branches = optionsMappings?.map((mapping) => ({
+    case: { $eq: ['$_id', mapping.value] },
+    then: mapping.label,
+  }));
+
+  return await Answer.aggregate([
+    // Match the condition ======> formId
+    {
+      $match: {
+        formId: mongoose.Types.ObjectId(formId),
+        questionId: { $in: questionIds },
+      },
+    },
+    // Group by userId and push all answers inside
+    {
+      $group: {
+        _id: { userId: '$userId', questionId: '$questionId' }, // Group by userId and questionId
+        total: { $sum: 1 }, // Count occurrences
+        answers: { $push: '$$ROOT' }, // Push entire documents into the answers array
+      },
+    },
+    {
+      $group: {
+        _id: '$_id.userId', // Group by userId
+        total: { $sum: '$total' },
+        questions: {
+          $push: {
+            questionId: '$_id.questionId',
+            total: '$total',
+            answers: '$answers',
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        questions: {
+          $map: {
+            input: '$questions',
+            as: 'question',
+            in: {
+              $mergeObjects: [
+                '$$question',
+                {
+                  answersTotal: {
+                    $sum: {
+                      $map: {
+                        input: '$$question.answers',
+                        as: 'answer',
+                        in: {
+                          $toInt: '$$answer.answer',
+                        },
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        userId: '$_id', // Group by userId
+        total: 1,
+        questions: 1,
+      },
+    },
+    {
+      $unset: 'questions.answers', // Unset the answers field in each object inside questions
+    },
+    {
+      $unwind: '$questions',
+    },
+    {
+      $group: {
+        _id: '$questions.questionId',
+        data: { $push: '$$ROOT' },
+      },
+    },
+    {
+      $project: {
+        questionId: '$_id',
+        data: {
+          $map: {
+            input: '$data',
+            as: 'item',
+            in: {
+              $mergeObjects: [
+                {
+                  _id: '$$item._id',
+                  questions: '$$item.questions',
+                },
+              ],
+            },
+          },
+        },
+        _id: 0,
+      },
+    },
+  ]);
+};
+
 // Helper to fetch metric details
-// ===========> Function to fetch question details
+// ===========> Function to metric question details
 exports.fetchMetricDetails = async (metricId) => {
   try {
     return await Metric.findOne({
