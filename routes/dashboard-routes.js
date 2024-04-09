@@ -22,3 +22,5 @@ router
   .route('/:dashboardId/data')
   .get(authController.validateToken, dashboardController.getDashboardData);
 module.exports = router;
+
+router.route('/personal/overall').get(authController.validateToken, dashboardController.getOverallPersonalData);
