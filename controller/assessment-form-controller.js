@@ -118,32 +118,7 @@ exports.getAllAssessmentForms = catchAsync(async (req, res, next) => {
 // extract assessment form by id
 exports.getAssessmentFormDetails = catchAsync(async (req, res, next) => {
   // 1) Check if assessment form with the id exists or not
-  const existingForm = await AssessmentForm.findOne({
-    _id: req.params.id,
-    active: true,
-  })
-    .select('-__v')
-    .populate({
-      path: 'sections',
-      select: '-_id -__v', // Exclude _id and __v fields from section
-      options: { sort: { order: 1 } }, // Sort sections by order
-      populate: {
-        path: 'sectionId',
-        select: '-__v',
-        populate: {
-          path: 'questions',
-          options: {sort: {order: 1}},
-          populate:{
-            path: 'questionId',
-            select: '-__v',
-            populate: {
-              path: 'options',
-              select: '-__v',
-            },
-          }
-        },
-      },
-    });
+  const existingForm = await this.fetchFormDetailsById(req.params.id);
 
   // 2) If assessment form doesn't exist then return 404
   if (!existingForm) {
@@ -198,3 +173,38 @@ exports.toggleAssessmentPoll = catchAsync(async (req, res, next) => {
     data: 'Assessment Form poll status have been switched',
   });
 });
+
+// helper functions
+// ===========> Function to metric question details
+exports.fetchFormDetailsById = async (formId) => {
+  try {
+    return await AssessmentForm.findOne({
+      _id: formId,
+      active: true,
+    })
+      .select('-__v')
+      .populate({
+        path: 'sections',
+        select: '-_id -__v', // Exclude _id and __v fields from section
+        options: { sort: { order: 1 } }, // Sort sections by order
+        populate: {
+          path: 'sectionId',
+          select: '-__v',
+          populate: {
+            path: 'questions',
+            options: { sort: { order: 1 } },
+            populate: {
+              path: 'questionId',
+              select: '-__v',
+              populate: {
+                path: 'options',
+                select: '-__v',
+              },
+            },
+          },
+        },
+      });
+  } catch (error) {
+    throw new Error('Error fetching metric details');
+  }
+};

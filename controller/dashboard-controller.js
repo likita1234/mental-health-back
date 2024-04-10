@@ -1,9 +1,7 @@
 const Dashboard = require('../models/dashboard-model');
 
+const formController = require('../controller/assessment-form-controller');
 const metricController = require('../controller/metric-controller');
-const {
-  fetchQuestionDetailsById,
-} = require('../controller/question-controller');
 
 const APIFeatures = require('../utils/api-features');
 const AppError = require('../utils/app-errors');
@@ -154,7 +152,6 @@ exports.getDashboardData = catchAsync(async (req, res, next) => {
   const { dashboardId } = req.params;
   // Check if dashboardId is valid or not
   const existingDashboard = await fetchDashboardDetailsById(dashboardId);
-
   if (!existingDashboard) {
     return next(new AppError('Invalid dashbard id in the request', 400));
   }
@@ -173,6 +170,63 @@ exports.getDashboardData = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: allMetricsData,
+  });
+});
+
+// Get overall personal dashboard related data
+exports.getOverallPersonalData = catchAsync(async (req, res, next) => {
+  // For now hard code the form id :-660ed11ce890ed380ca89c14
+  const formId = '660ed11ce890ed380ca89c14';
+  // First fetch the assessment details by Id
+  const existingForm = await formController.fetchFormDetailsById(formId);
+  // Check if form exists
+  if (!existingForm) {
+    return next(new AppError('No assessment form found with that id', 404));
+  }
+
+// Initiate variable to store allQuestions
+  let allQuestions = [];
+  let allTitles = [];
+  existingForm?.sections?.map((sectionObj) => {
+    const sectionData = sectionObj.sectionId;
+    const sectionTitle = sectionData?.title.english;
+    const questions = sectionData?.questions?.map((questionObj) => {
+      const questionData = questionObj.questionId;
+      allTitles.push({
+        questionId: questionData._id,
+        title: sectionTitle,
+      });
+      return {
+        _id: questionData._id,
+        type: questionData.type,
+      };
+    });
+    // Push all questions into one
+    allQuestions = allQuestions.concat(questions);
+  });
+
+  // Filter out questions by ratings and longtext types
+  const ratingTypeQuestions = allQuestions
+    ?.filter((question) => question.type === 'ratings')
+    ?.map((question) => question._id);
+
+  // We are not using longtextTypeQuestion analysis atm
+  // const longtextTypeQuestions = allQuestions
+  //   ?.filter((question) => question.type === 'longtext')
+  //   ?.map((question) => question._id);
+
+  const data = await metricController.getPersonalRatingsData(
+    formId,
+    ratingTypeQuestions
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      total: data.length,
+      allTitles,
+      data,
+    },
   });
 });
 

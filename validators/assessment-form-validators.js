@@ -9,12 +9,12 @@ exports.validateSectionIds = async (sections) => {
     });
     // Extract only the ids and convert them into string type to make comparisons easier
     const validSectionsIds = validSections?.map((section) =>
-      section._id.toString()
+      section._id?.toString()
     );
 
     // Check if all section Ids are valid
     const sectionsValid = sections.every((section) => {
-      return validSectionsIds.includes(section.toString());
+      return validSectionsIds.includes(section?.toString());
     });
     return sectionsValid;
   }
