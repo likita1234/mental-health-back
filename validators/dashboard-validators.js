@@ -9,12 +9,12 @@ exports.validateMetricIds = async (metrics) => {
     });
     // Extract only the ids and convert them into string type to make comparisons easier
     const validMetricsIds = validMetrics?.map((metric) =>
-      metric._id.toString()
+      metric._id?.toString()
     );
 
     // Check if all metric Ids are valid
     const metricsValid = metrics.every((metric) => {
-      return validMetricsIds.includes(metric.toString());
+      return validMetricsIds.includes(metric?.toString());
     });
     return metricsValid;
   }
