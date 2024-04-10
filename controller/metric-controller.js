@@ -17,7 +17,7 @@ const {
 
 // Resuable variables
 // To filter out unwanted type from the sectionQuestionIds
-const unwantedTypes = ['ratings', 'text', 'longtext'];
+const unwantedTypes = ['ratings', 'text', 'longtext', 'checkbox'];
 
 // =======> Extract all metrics
 exports.getAllMetrics = catchAsync(async (req, res, next) => {
@@ -774,15 +774,7 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
       counts[answer] = (counts[answer] || 0) + 1;
       return counts;
     }, {});
-
-    // Initialize sums for options 1 to 5
-    const sumAnswers = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-    Object.entries(sumAnswers).forEach(([option, _]) => {
-      sumAnswers[option] = answerCounts[option] || 0;
-    });
-
-    return { questionId, answers: [sumAnswers] };
+    return { questionId, answers: [answerCounts] };
   });
 
   // Use the mapping object to update answer keys to labels in the result
