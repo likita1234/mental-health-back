@@ -152,7 +152,6 @@ exports.getDashboardData = catchAsync(async (req, res, next) => {
   const { dashboardId } = req.params;
   // Check if dashboardId is valid or not
   const existingDashboard = await fetchDashboardDetailsById(dashboardId);
-
   if (!existingDashboard) {
     return next(new AppError('Invalid dashbard id in the request', 400));
   }
@@ -185,12 +184,18 @@ exports.getOverallPersonalData = catchAsync(async (req, res, next) => {
     return next(new AppError('No assessment form found with that id', 404));
   }
 
-  // Initiate variable to store allQuestions
+// Initiate variable to store allQuestions
   let allQuestions = [];
-  const sections = existingForm?.sections?.map((sectionObj) => {
+  let allTitles = [];
+  existingForm?.sections?.map((sectionObj) => {
     const sectionData = sectionObj.sectionId;
+    const sectionTitle = sectionData?.title.english;
     const questions = sectionData?.questions?.map((questionObj) => {
       const questionData = questionObj.questionId;
+      allTitles.push({
+        questionId: questionData._id,
+        title: sectionTitle,
+      });
       return {
         _id: questionData._id,
         type: questionData.type,
@@ -219,6 +224,7 @@ exports.getOverallPersonalData = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       total: data.length,
+      allTitles,
       data,
     },
   });
