@@ -180,7 +180,7 @@ exports.fetchQuestionDetailsById = async (questionId) => {
       .select('-__v')
       .populate({
         path: 'author',
-        select: 'name surname email role',
+        select: 'username email role',
       })
       .then(async (question) => {
         if (question.type === 'radio' || question.type === 'checkbox') {
