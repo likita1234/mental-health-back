@@ -201,7 +201,7 @@ exports.getPersonalRatingsData = async (formId, questionIds) => {
     {
       $group: {
         _id: { userId: '$userId', questionId: '$questionId' }, // Group by userId and questionId
-        total: { $sum: 1 }, // Count occurrences
+        totalSubmissions: { $sum: 1 }, // Count occurrences
         answers: { $push: '$$ROOT' }, // Push entire documents into the answers array
       },
     },
@@ -212,7 +212,7 @@ exports.getPersonalRatingsData = async (formId, questionIds) => {
         questions: {
           $push: {
             questionId: '$_id.questionId',
-            total: '$total',
+            totalSubmissions: '$totalSubmissions',
             answers: '$answers',
           },
         },
@@ -276,7 +276,7 @@ exports.getPersonalRatingsData = async (formId, questionIds) => {
               $mergeObjects: [
                 {
                   _id: '$$item._id',
-                  questions: '$$item.questions',
+                  question: '$$item.questions',
                 },
               ],
             },
@@ -882,7 +882,7 @@ const getRatingsOptionsDetails = () => {
   ]?.map((obj) => {
     return {
       ...obj,
-      value: obj.value.toString(),
+      value: obj.value?.toString(),
     };
   });
 };
