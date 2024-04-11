@@ -182,14 +182,14 @@ exports.getKeywordsAnalysisByQuestion = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getPersonalRatingsData = async (formId, questionIds) => {
+exports.getPersonalRatingsData = async (formId, questionIds, userId = null) => {
   const optionsMappings = getRatingsOptionsDetails();
   const branches = optionsMappings?.map((mapping) => ({
     case: { $eq: ['$_id', mapping.value] },
     then: mapping.label,
   }));
 
-  return await Answer.aggregate([
+  const pipeline = [
     // Match the condition ======> formId
     {
       $match: {
@@ -253,9 +253,9 @@ exports.getPersonalRatingsData = async (formId, questionIds) => {
         questions: 1,
       },
     },
-    {
-      $unset: 'questions.answers', // Unset the answers field in each object inside questions
-    },
+    // {
+    //   $unset: 'questions.answers', // Unset the answers field in each object inside questions
+    // },
     {
       $unwind: '$questions',
     },
@@ -285,7 +285,12 @@ exports.getPersonalRatingsData = async (formId, questionIds) => {
         _id: 0,
       },
     },
-  ]);
+  ];
+  if (userId) {
+    pipeline[0].$match.userId = userId;
+  }
+
+  return await Answer.aggregate(pipeline);
 };
 
 // Helper to fetch metric details

@@ -23,4 +23,15 @@ router
   .get(authController.validateToken, dashboardController.getDashboardData);
 module.exports = router;
 
-router.route('/personal/overall').get(authController.validateToken, dashboardController.getOverallPersonalData);
+router
+  .route('/personal/overall')
+  .get(
+    authController.validateToken,
+    dashboardController.getOverallPersonalData
+  );
+router
+  .route('/personal/overall/:userId')
+  .get(
+    authController.validateToken,
+    dashboardController.getOverallPersonalData
+  );

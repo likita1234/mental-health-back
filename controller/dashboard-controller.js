@@ -177,6 +177,7 @@ exports.getDashboardData = catchAsync(async (req, res, next) => {
 exports.getOverallPersonalData = catchAsync(async (req, res, next) => {
   // For now hard code the form id :-660ed11ce890ed380ca89c14
   const formId = '660ed11ce890ed380ca89c14';
+  const { userId } = req.params;
   // First fetch the assessment details by Id
   const existingForm = await formController.fetchFormDetailsById(formId);
   // Check if form exists
@@ -184,7 +185,7 @@ exports.getOverallPersonalData = catchAsync(async (req, res, next) => {
     return next(new AppError('No assessment form found with that id', 404));
   }
 
-// Initiate variable to store allQuestions
+  // Initiate variable to store allQuestions
   let allQuestions = [];
   let allTitles = [];
   existingForm?.sections?.map((sectionObj) => {
@@ -217,15 +218,16 @@ exports.getOverallPersonalData = catchAsync(async (req, res, next) => {
 
   const data = await metricController.getPersonalRatingsData(
     formId,
-    ratingTypeQuestions
+    ratingTypeQuestions,
+    userId
   );
 
   res.status(200).json({
     status: 'success',
     data: {
       total: data.length,
-      allTitles,
       data,
+      allTitles,
     },
   });
 });
