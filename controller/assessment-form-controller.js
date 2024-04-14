@@ -168,7 +168,7 @@ exports.toggleAssessmentPoll = catchAsync(async (req, res, next) => {
   // Toggle Assessment Form Poll
   await existingForm.togglePoll();
 
-  res.status(204).json({
+  res.status(200).json({
     status: 'success',
     data: 'Assessment Form poll status have been switched',
   });
