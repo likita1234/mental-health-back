@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'superadmin'],
+    enum: ['user', 'admin', 'superadmin', 'test-admin'],
     default: 'user',
   },
   password: {
@@ -78,7 +78,7 @@ userSchema.pre(/^find/, function (next) {
 
 userSchema.methods.correctPassword = async function (
   candidatePassword,
-  userPassword,
+  userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
@@ -86,7 +86,7 @@ userSchema.methods.correctPassword = async function (
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
     const passwordChangedTimestamp = parseInt(
-      this.passwordChangedAt.getTime() / 1000,
+      this.passwordChangedAt.getTime() / 1000
     );
     // console.log(this.passwordChangedAt, JWTTimestamp);
     // if the time is greater, it means that the password was changed

@@ -10,17 +10,21 @@ router
   .get(authController.validateToken, questionController.getAllQuestions)
   .post(
     authController.validateToken,
-    //   authController.restrictTo('admin', 'superadmin'),
+    authController.restrictTo('admin', 'superadmin', 'test-admin'),
     questionController.addQuestion
   );
 
 router
   .route('/:id')
   .get(authController.validateToken, questionController.getQuestionDetails)
-  .patch(authController.validateToken, questionController.updateQuestion)
+  .patch(
+    authController.validateToken,
+    authController.restrictTo('superadmin', 'admin'),
+    questionController.updateQuestion
+  )
   .delete(
     authController.validateToken,
-    // authController.restrictTo('admin'),
+    authController.restrictTo('superadmin', 'admin'),
     questionController.deleteQuestion
   );
 module.exports = router;

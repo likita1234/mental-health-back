@@ -8,7 +8,11 @@ const router = express.Router();
 router
   .route('/')
   .get(authController.validateToken, metricController.getAllMetrics)
-  .post(authController.validateToken, metricController.addMetric);
+  .post(
+    authController.validateToken,
+    authController.restrictTo('superadmin', 'admin'),
+    metricController.addMetric
+  );
 
 // ======================================================
 //  Data Aggregations Starts
@@ -22,7 +26,10 @@ router
 // =================> Question
 router
   .route('/keywords-analysis/:formId/:questionId')
-  .get(authController.validateToken, metricController.getKeywordsAnalysisByQuestion);
+  .get(
+    authController.validateToken,
+    metricController.getKeywordsAnalysisByQuestion
+  );
 
 // =================> Section Wise :- All Questions Included analysis (Filter out open end) <=================||
 router

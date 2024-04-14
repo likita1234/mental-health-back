@@ -8,15 +8,31 @@ const router = express.Router();
 router
   .route('/')
   .get(formController.getAllAssessmentForms)
-  .post(authController.validateToken, formController.addAssessmentForm);
+  .post(
+    authController.validateToken,
+    authController.restrictTo('superadmin', 'admin', 'test-admin'),
+    formController.addAssessmentForm
+  );
 
 router
   .route('/:id')
   .get(formController.getAssessmentFormDetails)
-  .patch(authController.validateToken, formController.updateAssessmentForm)
-  .delete(authController.validateToken, formController.deleteAssessmentForm);
+  .patch(
+    authController.validateToken,
+    authController.restrictTo('superadmin', 'admin'),
+    formController.updateAssessmentForm
+  )
+  .delete(
+    authController.validateToken,
+    authController.restrictTo('superadmin', 'admin'),
+    formController.deleteAssessmentForm
+  );
 
 router
   .route('/pollSwitch/:id')
-  .patch(authController.validateToken, formController.toggleAssessmentPoll);
+  .patch(
+    authController.validateToken,
+    authController.restrictTo('superadmin', 'admin'),
+    formController.toggleAssessmentPoll
+  );
 module.exports = router;
