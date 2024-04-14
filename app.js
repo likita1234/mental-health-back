@@ -40,12 +40,12 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Middleware for Limit requests from the same API
-const limiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000,
-  message: 'Too many requests at the moment. Please try again in an hour',
-});
-app.use('/api', limiter);
+// const limiter = rateLimit({
+//   max: 100,
+//   windowMs: 60 * 60 * 1000,
+//   message: 'Too many requests at the moment. Please try again in an hour',
+// });
+// app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
