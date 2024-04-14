@@ -41,7 +41,7 @@ exports.getAllQuestions = catchAsync(async (req, res, next) => {
 // =======> Add Question
 exports.addQuestion = catchAsync(async (req, res, next) => {
   //  1) Extract question body and options
-  const { title, description, label, type, options } = req.body;
+  const { title, description, label, type, options, required } = req.body;
   // console.log(options);
   //  2) Check if there are options
   //  If yes, then save options first
@@ -97,8 +97,8 @@ exports.getQuestionDetails = catchAsync(async (req, res, next) => {
 exports.updateQuestion = catchAsync(async (req, res, next) => {
   // 1) Extract question ID and fields to update
   const { id } = req.params; // Assuming the question ID is passed as a route parameter
-  const { title, description, type, options } = req.body;
-
+  const { title, description, type, options, required } = req.body;
+  console.log(required)
   // 2) Check if the question exists
   const question = await Question.findOne({ _id: id, active: true });
   if (!question) {
@@ -109,6 +109,7 @@ exports.updateQuestion = catchAsync(async (req, res, next) => {
   if (title) question.title = title;
   if (description) question.description = description;
   if (type) question.type = type;
+  question.required = required;
 
   // 4) Update options if provided
   if (type === 'radio' || type === 'checkbox')
