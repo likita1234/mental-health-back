@@ -183,12 +183,6 @@ exports.getKeywordsAnalysisByQuestion = catchAsync(async (req, res, next) => {
 });
 
 exports.getPersonalRatingsData = async (formId, questionIds, userId = null) => {
-  const optionsMappings = getRatingsOptionsDetails();
-  const branches = optionsMappings?.map((mapping) => ({
-    case: { $eq: ['$_id', mapping.value] },
-    then: mapping.label,
-  }));
-
   const pipeline = [
     // Match the condition ======> formId
     {
@@ -291,6 +285,20 @@ exports.getPersonalRatingsData = async (formId, questionIds, userId = null) => {
   }
 
   return await Answer.aggregate(pipeline);
+};
+
+exports.fetchKeywordQuestionsData = async ({ formId, questionIds, userId }) => {
+  let datasets = [];
+  for (let i = 0; i < questionIds.length; i++) {
+    const questionId = questionIds[i];
+    const metricData = await getAnswerKeywordsAnalysisByQuestionId(
+      formId,
+      questionId,
+      userId
+    );
+    datasets.push({ questionId, data: metricData.keywords });
+  }
+  return datasets;
 };
 
 // Helper to fetch metric details
@@ -813,14 +821,24 @@ const handleSectionTablesByQuestions = async (formId, sectionQuestionIds) => {
 };
 
 // Function for analysis of keywords
-const getAnswerKeywordsAnalysisByQuestionId = async (formId, questionId) => {
+const getAnswerKeywordsAnalysisByQuestionId = async (
+  formId,
+  questionId,
+  userId = null
+) => {
+  const matchCase = {
+    formId: mongoose.Types.ObjectId(formId),
+    questionId: mongoose.Types.ObjectId(questionId),
+  };
+
+  if (userId !== null) {
+    matchCase.userId = userId;
+  }
+
   const answersByUserId = await Answer.aggregate([
     // Match the condition ======> formId and questionId
     {
-      $match: {
-        formId: mongoose.Types.ObjectId(formId),
-        questionId: mongoose.Types.ObjectId(questionId),
-      },
+      $match: matchCase,
     },
     // Project stage to push entire documents into an array
     {
@@ -830,12 +848,13 @@ const getAnswerKeywordsAnalysisByQuestionId = async (formId, questionId) => {
       },
     },
   ]);
-
   // Extract each answer
   const overallAnswers = answersByUserId?.map((answerObj) => answerObj.answer);
+  const filterData = userId ? false : true;
   // Initiate new array to store all details along with keywords info
   const frequentKeywordsByUsers = await analyzeKeywordsFrequencyInAnswers(
-    overallAnswers
+    overallAnswers,
+    filterData
   );
   return {
     keywords: frequentKeywordsByUsers,
