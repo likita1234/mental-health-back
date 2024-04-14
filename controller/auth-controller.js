@@ -1,6 +1,7 @@
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const User = require('../models/user-model');
 const catchAsync = require('../utils/catch-async');
 const AppError = require('../utils/app-errors');
@@ -19,7 +20,7 @@ const createAndSendToken = (user, statusCode, res) => {
   // Set cookie options
   const cookieOptions = {
     expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
   };
@@ -41,14 +42,24 @@ const createAndSendToken = (user, statusCode, res) => {
   });
 };
 
+const encryptData = async (data) => {
+  return await bcrypt.hash(data, 12);
+};
+
+const compareEncryptedData = async (email1, email2) => {
+  return await bcrypt.compare(email1, email2);
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const { username, email, password, confirmPassword } = req.body;
+  const encryptedEmail = await encryptData(email);
+
   // Check if the user email already exists
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ $or: [{ username }, { email }] });
   if (user) {
     return next(
       new AppError(
-        'Email has already been taken. Please use another email',
+        'Username or Email has already been taken. Please use another email or username',
         400
       )
     );
@@ -56,7 +67,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   // Create a new user record
   const newUser = await User.create({
     username,
-    email,
+    email: encryptedEmail,
     password,
     confirmPassword,
   });
@@ -67,13 +78,14 @@ exports.signup = catchAsync(async (req, res, next) => {
 const promisifyJWTToken = promisify(jwt.verify);
 
 exports.signin = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
-  //   check if email and password exists
-  if (!email || !password) {
-    return next(new AppError('Please provide email and password!', 400));
+  const { username, password } = req.body;
+  //   check if username and password exists
+  if (!username || !password) {
+    return next(new AppError('Please provide username and password!', 400));
   }
+
   // check if the user exists and the password is correct
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ username }).select('+password');
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Invalid credentials', 401));
   }
