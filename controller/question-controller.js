@@ -98,7 +98,6 @@ exports.updateQuestion = catchAsync(async (req, res, next) => {
   // 1) Extract question ID and fields to update
   const { id } = req.params; // Assuming the question ID is passed as a route parameter
   const { title, description, type, options, required } = req.body;
-  console.log(required)
   // 2) Check if the question exists
   const question = await Question.findOne({ _id: id, active: true });
   if (!question) {
