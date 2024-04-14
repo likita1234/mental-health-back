@@ -211,22 +211,28 @@ exports.getOverallPersonalData = catchAsync(async (req, res, next) => {
     ?.filter((question) => question.type === 'ratings')
     ?.map((question) => question._id);
 
-  // We are not using longtextTypeQuestion analysis atm
-  // const longtextTypeQuestions = allQuestions
-  //   ?.filter((question) => question.type === 'longtext')
-  //   ?.map((question) => question._id);
-
   const data = await metricController.getPersonalRatingsData(
     formId,
     ratingTypeQuestions,
     userId
   );
 
+  // We are not using longtextTypeQuestion analysis atm
+  const longtextTypeQuestions = allQuestions
+    ?.filter((question) => question.type === 'longtext')
+    ?.map((question) => question._id);
+
+  const keywordsData = await metricController.fetchKeywordQuestionsData({
+    formId,
+    questionIds: longtextTypeQuestions,
+    userId
+  });
   res.status(200).json({
     status: 'success',
     data: {
       total: data.length,
       data,
+      keywordsData,
       allTitles,
     },
   });
