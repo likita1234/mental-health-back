@@ -141,3 +141,79 @@
  *           type: string
  *           format: date-time
  *           description: The date and time when the dashboard was last updated.
+ *
+ *
+ * /api/v1/dashboard/{dashboardId}:
+ *   get:
+ *     summary: Get Dashboard Details
+ *     description: Retrieve details of a specific dashboard.
+ *     tags:
+ *       - Dashboard
+ *     parameters:
+ *       - in: path
+ *         name: dashboardId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the dashboard.
+ *     security:
+ *       - bearerAuth: []  # Specify that this endpoint requires authentication
+ *     responses:
+ *       '200':
+ *         description: Dashboard details retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Dashboard'
+ *       '400':
+ *         description: Bad request, invalid dashboard ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         description: Unauthorized, authentication token not provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *   patch:
+ *     summary: Update Dashboard Details
+ *     description: Update details of a specific dashboard.
+ *     tags:
+ *       - Dashboard
+ *     parameters:
+ *       - in: path
+ *         name: dashboardId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the dashboard.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/DashboardRequest'
+ *     security:
+ *       - bearerAuth: []  # Specify that this endpoint requires authentication
+ *     responses:
+ *       '200':
+ *         description: Dashboard details updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Dashboard'
+ *       '400':
+ *         description: Bad request, invalid dashboard ID or request body.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         description: Unauthorized, authentication token not provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
