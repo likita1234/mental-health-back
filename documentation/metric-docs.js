@@ -136,6 +136,72 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ * 
+ * /metric/api/keywords-analysis/{formId}/{questionId}:
+ *   get:
+ *     summary: Get Keywords Analysis by Question
+ *     description: Retrieve keywords analysis for a specific question in a form.
+ *     tags:
+ *       - Metric
+ *     parameters:
+ *       - in: path
+ *         name: formId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the form.
+ *       - in: path
+ *         name: questionId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the question.
+ *     security:
+ *       - bearerAuth: []  # Specify that this endpoint requires authentication
+ *     responses:
+ *       '200':
+ *         description: Keywords analysis retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: Status of the response.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     keywords:
+ *                       type: object
+ *                       description: Keywords analysis data.
+ *                       example:
+ *                         accustomed: 6
+ *                         adapt: 6
+ *                         attended: 8
+ *                     answers:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                             description: The ID of the answer.
+ *                           answer:
+ *                             type: string
+ *                             description: The answer text.
+ *       '400':
+ *         description: Bad request, invalid question ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         description: Unauthorized, authentication token not provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 
 /**
