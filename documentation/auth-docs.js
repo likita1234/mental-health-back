@@ -1,4 +1,3 @@
-
 /**
  * @swagger
  * components:
@@ -34,7 +33,7 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- *//**
+ */ /**
  * @swagger
  * /api/v1/auth/login:
  *   post:
@@ -48,21 +47,20 @@
  *         application/json:
  *           schema:
  *             properties:
- *               email:
+ *               username:
  *                 type: string
- *                 format: email
- *                 description: User's email
+ *                 description: User's username
  *               password:
  *                 type: string
  *                 format: password
  *                 description: User's password
  *             required:
- *               - email
+ *               - username
  *               - password
  *           example:
- *              email: 'admin@gmail.com'
- *              password: '12345678'
- * 
+ *              username: 'testuser2'
+ *              password: '123456789'
+ *
  *     responses:
  *       '200':
  *         description: User login successful
@@ -180,12 +178,9 @@
  *     SignUpRequest:
  *       type: object
  *       properties:
- *         name:
+ *         username:
  *           type: string
- *           description: User's name
- *         surname:
- *           type: string
- *           description: User's surname
+ *           description: User's username
  *         email:
  *           type: string
  *           format: email
@@ -199,8 +194,7 @@
  *           format: password
  *           description: Confirm password
  *       example:
- *         name: John
- *         surname: Doe
+ *         username: JohnDoe123
  *         email: john.doe@example.com
  *         password: mypassword
  *         confirmPassword: mypassword
