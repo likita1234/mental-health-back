@@ -216,4 +216,44 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *
+ *
+ * /api/v1/dashboard/{dashboardId}/data:
+ *   get:
+ *     summary: Get Dashboard Data
+ *     description: Retrieve data associated with a specific dashboard.
+ *     tags:
+ *       - Dashboard
+ *     parameters:
+ *       - in: path
+ *         name: dashboardId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the dashboard.
+ *     security:
+ *       - bearerAuth: []  # Specify that this endpoint requires authentication
+ *     responses:
+ *       '200':
+ *         description: Dashboard data retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   // Define your properties here based on the data structure returned
+ *       '400':
+ *         description: Bad request, invalid dashboard ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         description: Unauthorized, authentication token not provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
