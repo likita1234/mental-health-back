@@ -202,10 +202,181 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- */
-
-/**
- * @swagger
+ * 
+ * 
+ * /metric/api/v1/{formId}/{sectionId}/data:
+ *   get:
+ *     summary: Get Table Analysis by Form and Section
+ *     description: Retrieve table analysis for a specific section in a form.
+ *     tags:
+ *       - Metric
+ *     parameters:
+ *       - in: path
+ *         name: formId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the form.
+ *       - in: path
+ *         name: sectionId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the section.
+ *     security:
+ *       - bearerAuth: []  # Specify that this endpoint requires authentication
+ *     responses:
+ *       '200':
+ *         description: Table analysis retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: Status of the response.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     sectionDetails:
+ *                       type: object
+ *                       description: Details of the section.
+ *                       properties:
+ *                         active:
+ *                           type: boolean
+ *                           description: Indicates if the section is active.
+ *                         _id:
+ *                           type: string
+ *                           description: The ID of the section.
+ *                         title:
+ *                           type: object
+ *                           description: Title of the section.
+ *                           properties:
+ *                             _id:
+ *                               type: string
+ *                               description: The ID of the title.
+ *                             english:
+ *                               type: string
+ *                               description: The English title.
+ *                             nepali:
+ *                               type: string
+ *                               description: The Nepali title.
+ *                         description:
+ *                           type: object
+ *                           description: Description of the section.
+ *                           properties:
+ *                             _id:
+ *                               type: string
+ *                               description: The ID of the description.
+ *                             english:
+ *                               type: string
+ *                               description: The English description.
+ *                             nepali:
+ *                               type: string
+ *                               description: The Nepali description.
+ *                         questions:
+ *                           type: array
+ *                           description: List of questions in the section.
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               _id:
+ *                                 type: string
+ *                                 description: The ID of the question.
+ *                               order:
+ *                                 type: integer
+ *                                 description: The order of the question within the section.
+ *                               questionId:
+ *                                 type: object
+ *                                 description: Details of the question.
+ *                                 properties:
+ *                                   options:
+ *                                     type: array
+ *                                     description: List of options for the question.
+ *                                     items:
+ *                                       type: object
+ *                                       properties:
+ *                                         _id:
+ *                                           type: string
+ *                                           description: The ID of the option.
+ *                                         title:
+ *                                           type: object
+ *                                           description: Title of the option.
+ *                                           properties:
+ *                                             _id:
+ *                                               type: string
+ *                                               description: The ID of the title.
+ *                                             english:
+ *                                               type: string
+ *                                               description: The English title.
+ *                                             nepali:
+ *                                               type: string
+ *                                               description: The Nepali title.
+ *                                         optionValue:
+ *                                           type: integer
+ *                                           description: The value of the option.
+ *                                         createdAt:
+ *                                           type: string
+ *                                           format: date-time
+ *                                           description: The creation date of the option.
+ *                                         updatedDate:
+ *                                           type: string
+ *                                           format: date-time
+ *                                           description: The last update date of the option.
+ *                                   active:
+ *                                     type: boolean
+ *                                     description: Indicates if the question is active.
+ *                                   answer:
+ *                                     type: string
+ *                                     description: The answer to the question.
+ *                                   required:
+ *                                     type: boolean
+ *                                     description: Indicates if the question is required.
+ *                                   title:
+ *                                     type: object
+ *                                     description: Title of the question.
+ *                                     properties:
+ *                                       _id:
+ *                                         type: string
+ *                                         description: The ID of the title.
+ *                                       english:
+ *                                         type: string
+ *                                         description: The English title.
+ *                                       nepali:
+ *                                         type: string
+ *                                         description: The Nepali title.
+ *                                   description:
+ *                                     type: object
+ *                                     description: Description of the question.
+ *                                     properties:
+ *                                       _id:
+ *                                         type: string
+ *                                         description: The ID of the description.
+ *                                       english:
+ *                                         type: string
+ *                                         description: The English description.
+ *                                       nepali:
+ *                                         type: string
+ *                                         description: The Nepali description.
+ *                         metricData:
+ *                           type: object
+ *                           description: Metric data for the section.
+ *                           example: {}  # Add an example of the metric data
+ *       '400':
+ *         description: Bad request, invalid form or section ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         description: Unauthorized, authentication token not provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ * 
+ * 
  * components:
  *   schemas:
  *     Metric:
