@@ -256,4 +256,122 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *
+ *
+ * /api/v1/dashboard/personal/overall:
+ *   get:
+ *     summary: Get Overall Personal Dashboard Data
+ *     description: Retrieve overall personal dashboard data.
+ *     tags:
+ *       - Dashboard
+ *     security:
+ *       - bearerAuth: []  # Specify that this endpoint requires authentication
+ *     responses:
+ *       '200':
+ *         description: Overall personal dashboard data retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total:
+ *                   type: number
+ *                   description: Total number of data points retrieved.
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       // Define your properties here based on the data structure returned
+ *                 keywordsData:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       // Define your properties here based on the data structure returned
+ *                 allTitles:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       questionId:
+ *                         type: string
+ *                         description: The ID of the question.
+ *                       title:
+ *                         type: string
+ *                         description: The title of the question.
+ *       '404':
+ *         description: Not found, no assessment form found with the provided ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         description: Unauthorized, authentication token not provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *
+ * /api/v1/dashboard/personal/overall/{userId}:
+ *   get:
+ *     summary: Get Overall Personal Dashboard Data for a Specific User
+ *     description: Retrieve overall personal dashboard data for a specific user.
+ *     tags:
+ *       - Dashboard
+ *     security:
+ *       - bearerAuth: []  # Specify that this endpoint requires authentication
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: The ID of the user for whom the data is to be retrieved.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Overall personal dashboard data retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total:
+ *                   type: number
+ *                   description: Total number of data points retrieved.
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       // Define your properties here based on the data structure returned
+ *                 keywordsData:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       // Define your properties here based on the data structure returned
+ *                 allTitles:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       questionId:
+ *                         type: string
+ *                         description: The ID of the question.
+ *                       title:
+ *                         type: string
+ *                         description: The title of the question.
+ *       '404':
+ *         description: Not found, no assessment form found with the provided ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         description: Unauthorized, authentication token not provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
