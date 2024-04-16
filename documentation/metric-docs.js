@@ -137,7 +137,7 @@
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  * 
- * /metric/api/keywords-analysis/{formId}/{questionId}:
+ * /api/v1/metric/keywords-analysis/{formId}/{questionId}:
  *   get:
  *     summary: Get Keywords Analysis by Question
  *     description: Retrieve keywords analysis for a specific question in a form.
@@ -204,7 +204,7 @@
  *               $ref: '#/components/schemas/ErrorResponse'
  * 
  * 
- * /metric/api/v1/{formId}/{sectionId}/data:
+ * /api/v1/metric/{formId}/{sectionId}/data:
  *   get:
  *     summary: Get Table Analysis by Form and Section
  *     description: Retrieve table analysis for a specific section in a form.
