@@ -4,7 +4,12 @@ const userController = require('../controller/user-controller');
 
 const router = express.Router();
 
-router.get('/', authController.validateToken, userController.getAllUsers);
+router.get(
+  '/',
+  authController.validateToken,
+  authController.restrictTo('superadmin', 'admin'),
+  userController.getAllUsers
+);
 
 router.patch(
   '/update',
