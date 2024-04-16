@@ -2,13 +2,9 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 
 const APIFeatures = require('../utils/api-features');
-
 const Answer = require('../models/answer-model');
 const AssessmentForm = require('../models/assessment-form-model');
 const Question = require('../models/question-model');
-
-const QuestionController = require('./question-controller');
-
 const AppError = require('../utils/app-errors');
 const catchAsync = require('../utils/catch-async');
 
