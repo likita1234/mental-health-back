@@ -26,25 +26,25 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 
 exports.updateLoggedUserDetails = catchAsync(async (req, res, next) => {
   // fetch User details
-  const { name, surname, email } = req.body;
+  const { username, email } = req.body;
   // 1) Create error if user POSTS password details
   if (req.body.password || req.body.confirmPassword) {
     return next(
       new AppError(
         'You cannot update password here. Please use a different link.',
-        400,
-      ),
+        400
+      )
     );
   }
 
   // 2) Filter the fields first and update into the existing user object
-  const filteredUserDetails = filterObj(req.body, 'name', 'surname');
+  const filteredUserDetails = filterObj(req.body, 'username');
   // 3) Update User details
 
   const updatedUser = await User.findByIdAndUpdate(
     req.loggedUser._id,
     filteredUserDetails,
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   );
 
   res.status(200).json({
